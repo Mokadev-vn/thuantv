@@ -1,0 +1,79 @@
+﻿@using CinemaOnline.Models
+@model BookFinalResponse
+@{
+    ViewBag.Title = "Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var status = true;
+
+}
+<style>
+    .book-final {
+        text-align: center
+    }
+
+    .error__image {
+        width: 50%
+    }
+
+    .error__text {
+        padding: 20px 0;
+    }
+
+    .book-description {
+        text-align: center;
+        padding: 28px 0;
+    }
+</style>
+<section class="container" style="padding-top: 80px">
+
+    @if (Model.Status)
+    {
+        <div class="order-container">
+            <div class="order">
+                <img class="order__images" alt='' src="/Content/images/tickets.png">
+                <p class="order__title">Thank you <br><span class="order__descript">you have successfully purchased tickets</span></p>
+            </div>
+
+            <div class="ticket">
+                <div class="ticket-position">
+                    <div class="ticket__indecator indecator--pre">
+                        <div class="indecator-text pre--text">online ticket</div>
+                    </div>
+                    <div class="ticket__inner">
+
+                        <div class="ticket-secondary">
+                            <span class="ticket__item">Ticket number <strong class="ticket__number">@Model.TicketNumber</strong></span>
+                            <span class="ticket__item ticket__date">@Model.Time</span>
+                            @*<span class="ticket__item ticket__time">17:45</span>*@
+                            <span class="ticket__item">Cinema: <span class="ticket__cinema">@Model.Room</span></span>
+                            <span class="ticket__item"><span class="ticket__hall">@Model.StatusTicket</span></span>
+                            <span class="ticket__item ticket__price">price: <strong class="ticket__cost">@Model.Price</strong></span>
+                        </div>
+
+                        <div class="ticket-primery">
+                            <span class="ticket__item ticket__item--primery ticket__film">Film<br><strong class="ticket__movie">@Model.FilmName</strong></span>
+                            <span class="ticket__item ticket__item--primery">Sits: <span class="ticket__place">@Model.Sits</span></span>
+                        </div>
+                    </div>
+                    <div class="ticket__indecator indecator--post">
+                        <div class="indecator-text post--text">Vé online</div>
+                    </div>
+                </div>
+            </div>
+            <div class="book-description"><span>Chúng tôi đã gửi vé về địa chỉ email của bạn (<b>@Model.Email</b>) vui lòng kiểm tra lại.</span></div>
+            <div class="ticket-control">
+                <a href="javascript:window.print()" class="watchlist list--download">Download</a>
+                <a href="javascript:window.print()" class="watchlist list--print">Print</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="book-final">
+            <img src="~/FileUploads/images/ticket-err.png" class="error__image" alt="" />
+            <h1 class="error__text">Đã có lỗi xảy ra</h1>
+            <h4 class="error__text">Vui lòng thực hiện lại</h4>
+            <a href="/" class="btn btn-md btn--warning">return to homepage</a>
+        </div>
+    }
+</section>

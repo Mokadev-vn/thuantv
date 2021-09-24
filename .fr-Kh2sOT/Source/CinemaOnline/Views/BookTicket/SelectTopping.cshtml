@@ -1,0 +1,290 @@
+﻿@using BELibrary.Entity
+@using BELibrary.Models.View
+@using BELibrary.Extendsions
+@{
+    ViewBag.Title = "ReserveSeat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SelectToppingView
+<style>
+    /* container */
+
+    #share {
+        width: 100%;
+        margin: 20px auto;
+    }
+
+        /* buttons */
+
+        #share a {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 4px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #fff;
+            opacity: 0.75;
+            transition: opacity 0.15s linear;
+        }
+
+            #share a:hover {
+                opacity: 1;
+            }
+
+        /* icons */
+
+        #share i {
+            position: relative;
+            top: 45%;
+            margin-left: 6px;
+            transform: translateY(-50%);
+        }
+
+    /* colors */
+
+    .facebook {
+        background: #3b5998;
+    }
+
+    .twitter {
+        background: #55acee;
+    }
+
+    .googleplus {
+        background: #dd4b39;
+    }
+
+    .linkedin {
+        background: #0077b5;
+    }
+
+    .pinterest {
+        background: #cb2027;
+    }
+
+    .search__button {
+        padding: 8px 12px;
+    }
+
+    .sits-color {
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        top: 5px;
+        left: 0;
+    }
+
+    .topping-control {
+        width: 50px;
+        color: black;
+        display: inline-block;
+        height: 20px;
+        padding: 2px 4px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>
+<!-- Search bar -->
+<div class="search-wrapper" style="padding-top: 80px; height: auto">
+    <div class="container container--add">
+        <form id='search-form' method='get' class="search" style="padding-bottom: 15px;">
+            <input type="text" class="search__field" placeholder="Tìm kiếm">
+            <select name="sorting_item" id="search-sort" class="search__sort" tabindex="0">
+                <option value="1" selected='selected'>By title</option>
+                <option value="2">By year</option>
+                <option value="3">By producer</option>
+                <option value="4">By title</option>
+                <option value="5">By year</option>
+            </select>
+            <button type='submit' class="btn btn-md btn--danger search__button">Tìm kiếm</button>
+        </form>
+    </div>
+</div>
+<section class="container">
+    <div class="order-container">
+        <div class="order">
+            <img class="order__images" alt='' src="/Content/images/tickets.png">
+            <p class="order__title">Đặt vé <br><span class="order__descript">và tận hưởng bộ phim vui vẻ</span></p>
+        </div>
+    </div>
+    <div class="order-step-area">
+        <div class="order-step second--step">Chọn topping</div>
+    </div>
+    <div class="col-sm-8 col-md-9">
+
+        <div class="tags-area">
+            <div class="tags tags--unmarked">
+                <span class="tags__label">Lọc theo:</span>
+                <ul>
+                    <li class="item-wrap"><a href="#" class="tags__item item-active" data-filter='all'>Tất cả</a></li>
+                    <li class="item-wrap"><a href="#" class="tags__item" data-filter='release'>Thức uống</a></li>
+                    <li class="item-wrap"><a href="#" class="tags__item" data-filter='popularity'>Đồ ăn</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Movie preview item -->
+        @{
+            foreach (var item in Model.Toppings)
+            {
+                <div class="movie movie--preview release" type="@item.KindOfToppingEnum">
+                    <div class="col-sm-5 col-md-3">
+                        <div class="movie__images">
+                            <img alt='' src="@item.ImageUrl">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-7 col-md-9">
+                        <a href='movie-page-left.html' class="movie__title link--huge">@item.Name</a>
+
+                        <p class="movie__time">@item.Price.GetVnCurrency()</p>
+
+                        <p class="movie__option"><strong>Loại: </strong><a href="#">@item.KindOfTopping</a></p>
+
+                        <div class="movie__btns">
+                            <a class="watchlist" style="cursor:default;" onclick="addTopping('@item.Id','@item.Name',@item.Price)">Thêm vào danh sách</a>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <!-- Time table (choose film start time)-->
+                    <div class="time-select">
+                        <div class="time-select__group group--first">
+                            <div class="col-sm-4">
+                                <p class="time-select__place">Cineworld</p>
+                            </div>
+                            <ul class="col-sm-8 items-wrap">
+                                <li class="time-select__item" data-time='09:40'>09:40</li>
+                                <li class="time-select__item" data-time='13:45'>13:45</li>
+                                <li class="time-select__item active" data-time='15:45'>15:45</li>
+                                <li class="time-select__item" data-time='19:50'>19:50</li>
+                                <li class="time-select__item" data-time='21:50'>21:50</li>
+                            </ul>
+                        </div>
+
+                        <div class="time-select__group">
+                            <div class="col-sm-4">
+                                <p class="time-select__place">Empire</p>
+                            </div>
+                            <ul class="col-sm-8 items-wrap">
+                                <li class="time-select__item" data-time='10:45'>10:45</li>
+                                <li class="time-select__item" data-time='16:00'>16:00</li>
+                                <li class="time-select__item" data-time='19:00'>19:00</li>
+                                <li class="time-select__item" data-time='21:15'>21:15</li>
+                                <li class="time-select__item" data-time='23:00'>23:00</li>
+                            </ul>
+                        </div>
+
+                        <div class="time-select__group">
+                            <div class="col-sm-4">
+                                <p class="time-select__place">Curzon</p>
+                            </div>
+                            <ul class="col-sm-8 items-wrap">
+                                <li class="time-select__item" data-time='09:00'>09:00</li>
+                                <li class="time-select__item" data-time='11:00'>11:00</li>
+                                <li class="time-select__item" data-time='13:00'>13:00</li>
+                                <li class="time-select__item" data-time='15:00'>15:00</li>
+                                <li class="time-select__item" data-time='17:00'>17:00</li>
+                                <li class="time-select__item" data-time='19:0'>19:00</li>
+                                <li class="time-select__item" data-time='21:0'>21:00</li>
+                                <li class="time-select__item" data-time='23:0'>23:00</li>
+                                <li class="time-select__item" data-time='01:0'>01:00</li>
+                            </ul>
+                        </div>
+
+                        <div class="time-select__group">
+                            <div class="col-sm-4">
+                                <p class="time-select__place">Odeon</p>
+                            </div>
+                            <ul class="col-sm-8 items-wrap">
+                                <li class="time-select__item" data-time='10:45'>10:45</li>
+                                <li class="time-select__item" data-time='16:00'>16:00</li>
+                                <li class="time-select__item" data-time='19:00'>19:00</li>
+                                <li class="time-select__item" data-time='21:15'>21:15</li>
+                                <li class="time-select__item" data-time='23:00'>23:00</li>
+                            </ul>
+                        </div>
+
+                        <div class="time-select__group group--last">
+                            <div class="col-sm-4">
+                                <p class="time-select__place">Picturehouse</p>
+                            </div>
+                            <ul class="col-sm-8 items-wrap">
+                                <li class="time-select__item" data-time='17:45'>17:45</li>
+                                <li class="time-select__item" data-time='21:30'>21:30</li>
+                                <li class="time-select__item" data-time='02:20'>02:20</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- end time table-->
+                </div>
+            }
+        }
+        <div class="coloum-wrapper">
+            <div class="pagination paginatioon--full" style="display:block">
+                <a href='/Film/Detail?id=@Model.CurrentBooking.FilmId' class="pagination__prev">Quay lại</a>
+                <a onclick="nextStep()" class="pagination__next">Tiếp theo</a>
+            </div>
+        </div>
+    </div>
+
+    <aside class="col-sm-4 col-md-3">
+        <div class="sitebar">
+            <div class="category category--discuss category--count marginb-sm mobile-category ls-cat">
+                <h3 class="category__title">Topping<br><span class="title-edition">đã chọn</span></h3>
+                <ol id="topping-selected">
+                </ol>
+                <h4 class="category__title">Tổng giá: <br><span class="title-edition" id="total-price">0 <sup style="text-decoration:underline">đ</sup></span></h4>
+            </div>
+        </div>
+    </aside>
+</section>
+@section Scripts {
+    <script>
+        var reserveTicket = JSON.parse('@Html.Raw(Json.Encode(Model.CurrentBooking))');
+        reserveTicket.Toppings = [];
+        var toppingTemplate = '<li topping-id="{0}"><a href="#" class="category__item" style="width:60%">{1}</a><input class="form-control topping-control" type="number" min="1" value="1" onChange="toppingQuantityChange(\'{0}\')" /><i class="fa fa-times" onclick="removeTopping(\'{0}\')"></i></li>';
+        var totalPrice = 0;
+        function addTopping(id, name, price ) {
+            if (reserveTicket.Toppings.filter((elm, index) => { if (elm.Id === id) return elm; }).length === 0) {
+                reserveTicket.Toppings.push({ Id: id, Quantity: 1, Price: price, Name : name });
+                $('#topping-selected').append(toppingTemplate.replace(/\{0\}/g, id).replace(/\{1\}/g, name));
+                totalPrice += price;
+                $('#total-price').html(totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
+            }
+        }
+
+        function toppingQuantityChange(id) {
+            var value = $('li[topping-id="' + id + '"] input').val();
+            $.each(reserveTicket.Toppings,
+                (index, elm) => {
+                    if (elm.Id === id) {
+                        totalPrice -= elm.Quantity * elm.Price;
+                        elm.Quantity = parseInt(value);
+                        totalPrice += elm.Quantity * elm.Price;
+                        $('#total-price')
+                            .html(totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
+                    }
+                });
+        }
+
+        function removeTopping(id) {
+            $('li[topping-id="' + id + '"]').remove();
+            reserveTicket.Toppings = reserveTicket.Toppings.filter((elm, index) => {
+                if (elm.Id !== id) {
+                    return elm;
+                } else {
+                    totalPrice -= elm.Quantity * elm.Price;
+                    $('#total-price').html(totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
+                }
+                return null;
+            });
+        }
+
+        function nextStep() {
+            window.location.href = window.location.origin + '/BookTicket/AddPromotion?jsonData=' + JSON.stringify(reserveTicket);
+        }
+    </script>
+}

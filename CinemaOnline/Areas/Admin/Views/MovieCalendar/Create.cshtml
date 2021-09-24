@@ -1,0 +1,330 @@
+﻿@using BELibrary.Entity
+@using CinemaOnline.Areas.Admin.Models
+@model MovieCalendar
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    const string basePath = "/Areas/Admin/Content";
+
+    var lastiIp = (MovieCalendarGet)ViewBag.LastIp;
+
+    DateTime date;
+    date = Model == null ? DateTime.Now : Model.StartWeek;
+
+    string startWeek = date.ToString("MM/dd/yyyy");
+}
+@section CSS{
+    <!--Bootstrap Datepicker [ OPTIONAL ]-->
+    <link href="@basePath/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css" rel="stylesheet">
+    <style>
+        .select2-container {
+            width: 100% !important
+        }
+    </style>
+}
+<div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">@ViewBag.Feature</h3>
+    </div>
+    <div class="panel-body">
+        <!-- Tabs Content -->
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <form id="form" class="form-horizontal" action="#" method="post">
+            @if (ViewBag.IsEdit)
+            {
+                <input type="hidden" value="true" name="IsEdit" />
+                <input type="hidden" value="@Model.Id" name="Id" />
+                <input type="hidden" value="@lastiIp.LStartWeek" name="LStartWeek" />
+                <input type="hidden" value="@lastiIp.LMovieDisplayTypeId" name="LMovieDisplayTypeId" />
+                <input type="hidden" value="@lastiIp.LFilmId" name="LFilmId" />
+                <input type="hidden" value="@lastiIp.LDayOfWeekId" name="LDayOfWeekId" />
+                <input type="hidden" value="@lastiIp.LCinemaRoomId" name="LCinemaRoomId" />
+            }
+            else
+            {
+                <input type="hidden" value="false" name="IsEdit" />
+            }
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Tuần*</label>
+                    @Html.EditorFor(model => startWeek, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", id = "StartWeek" } })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Tên Phim*</label>
+                    @Html.DropDownList("FilmId", (SelectList)ViewBag.Films, "---Select---",
+                               new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="form-group row" style="display: none">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Thứ*</label>
+                    @Html.DropDownList("DaysOfWeekId", (SelectList)ViewBag.DaysOfWeeks, "---Select---",
+                               new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Loại phim*</label>
+                    @Html.DropDownList("MovieDisplayTypeId", (SelectList)ViewBag.MovieDisplayTypes, "---Select---",
+                               new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Phòng*</label>
+                    @Html.DropDownList("CinemaRoomId", (SelectList)ViewBag.CinemaRooms, "---Select---",
+                        new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Khung giờ *</label>
+                    @Html.DropDownList("TimeFrames", (SelectList)ViewBag.TimeFrames,
+                               new { @class = "form-control", @required = "required", multiple = "multiple" })
+                </div>
+            </div>
+
+            <div class="row text-center mg-t-b-35-50">
+                <div class="form-group row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
+                        <div class="panel">
+
+                            <!--Panel heading-->
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Lịch chiếu</h3>
+                            </div>
+                            <!--Default panel contents-->
+                            <div class="panel-body">
+                                <p>Lịch chiếu bao gồm (Phim, Thứ, Khung giờ, Loại phim).</p>
+                            </div>
+
+                            <!--Table-->
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Tên phim</th>
+                                        <th class="text-center">Thứ</th>
+                                        <th class="text-center">Loại</th>
+                                        <th class="text-center">Khung giờ</th>
+                                        <th class="text-center">Giá</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="tickets">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-footer clearfix">
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
+                        @{
+                            if (ViewBag.IsEdit)
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Lưu</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Thêm</button>
+                            }
+                        }
+                    </div>
+                    <div class="col-lg-2"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <!--Bootstrap Datepicker [ OPTIONAL ]-->
+    <script src="@basePath/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+
+    <script>
+        var baseUrl = '/Admin/MovieCalendar';
+        $(document).ready(function () {
+
+            if (!$("input[name=Id]").val()) {
+                $("#MovieDisplayTypeId").prop("disabled", true);
+            }
+
+            $("#TimeFrames").select2();
+
+            $("#TimeFrames, #FilmId, #DaysOfWeekId, #MovieDisplayTypeId").change(function() {
+
+                const timeFrames = $('#TimeFrames').val();
+                const filmId = $('#FilmId').val();
+                const daysOfWeekId = $('#DaysOfWeekId').val();
+                const movieDisplayTypeId = $('#MovieDisplayTypeId').val();
+
+                if (timeFrames.length >= 1 && filmId !== "" && daysOfWeekId !== "" && movieDisplayTypeId !== "") {
+                    const data = {
+                        TimeFrames: timeFrames,
+                        FilmId: filmId,
+                        DaysOfWeekId: daysOfWeekId,
+                        MovieDisplayTypeId: movieDisplayTypeId,
+                    };
+                    getVal(data);
+                }
+            });
+
+            $("#FilmId").change(function() {
+                $("#MovieDisplayTypeId").prop("disabled", false);
+                const id = $("#FilmId").val();
+                ajax.get(`/admin/MovieCalendar/GetMovieDisplay`,
+                    { filmId: id },
+                    (response) => {
+                        if (response.status) {
+                            const obj = response.data;
+                            let html = "";
+                            if (obj.length > 0) {
+                                obj.forEach(x => {
+                                    html += `<option value="${x.Id}">${x.Name}</option>`;
+                                });
+                            } else {
+                                $("#MovieDisplayTypeId").prop("disabled", true);
+                                html += `<option value="">Không có loại film!</option>`;
+                            }
+                            $("#MovieDisplayTypeId").html(html);
+                        } else {
+                            $("#MovieDisplayTypeId").prop("disabled", true);
+                            notify.push(response.mess, notify.EType.DANGER);
+                        }
+                    },
+                    (jqXhr, textStatus) => {
+                        const mess = `Request failed: ${textStatus}`;
+                        notify.push(mess, notify.EType.DANGER);
+
+                    }
+                );
+            });
+             //binding seleced val
+
+            if ($("input[name=Id]").val()) {
+                const selectedTimeFrames = JSON.parse('@Html.Raw(Json.Encode(ViewBag.SelectedTimeFrames))');
+                console.log(selectedTimeFrames);
+
+                $('#TimeFrames').val(selectedTimeFrames);
+                $('#TimeFrames').trigger('change');
+
+            }
+
+            function getVal(data) {
+                ajax.get(`${baseUrl}/getprice`, data,
+                    (response) => {
+                        if (response.status) {
+                            $('#tickets').html(response.html);
+                        } else {
+                            notify.push(response.mess, notify.EType.DANGER);
+                        }
+                    },
+                    (jqXHR, textStatus) => {
+                        let mess = "Request failed: " + textStatus;
+                        notify.push(mess, notify.EType.DANGER);
+                        $(':input[type="submit"]').prop('disabled', false);
+                    });
+            }
+            $("#StartWeek").datepicker({
+                language: "vi",
+                calendarWeeks: true,
+                autoclose: true
+            }).on("changeDate", function (e) {
+
+                const days = ['Chủ nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
+                const now = new Date(e.date);
+                const day = days[now.getDay()];
+                $(`#DaysOfWeekId option:contains(${day})`).attr('selected', 'selected');
+
+            });
+
+            // Valid
+            const fields = {
+                StartWeek: {
+                    container: 'tooltip',
+                    validators: {
+                        notEmpty: {
+                            message: 'StartWeek là bắt buộc và không thể để trống'
+                        }
+                    }
+                },
+                FilmId: {
+                    container: 'tooltip',
+                    validators: {
+                        notEmpty: {
+                            message: 'Phim là bắt buộc và không thể để trống'
+                        }
+                    }
+                },
+                DaysOfWeekId: {
+                    container: 'tooltip',
+                    validators: {
+                        notEmpty: {
+                            message: 'Thứ là bắt buộc và không thể để trống'
+                        }
+                    }
+                },
+                MovieDisplayTypeId: {
+                    container: 'tooltip',
+                    validators: {
+                        notEmpty: {
+                            message: 'Loại là bắt buộc và không thể để trống'
+                        }
+                    }
+                },
+                TimeFrames: {
+                    container: 'tooltip',
+                    validators: {
+                        notEmpty: {
+                            message: 'Khung giờ là bắt buộc và không thể để trống'
+                        }
+                    }
+                }
+
+            }
+            validator.valid('form', fields, (e) => {
+                e.preventDefault();
+                //var today = new Date($("#StartWeek").val());
+                //if (today.getDay() !== 1 ) {
+                //     $(':input[type="submit"]').prop('disabled', false);
+                //    notify.push("Vui lòng chọn thứ 2", notify.EType.DANGER);
+                //    return;
+                //};
+                var formData = new FormData(document.getElementById('form'));
+                ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                    (response) => {
+                        if (response.status) {
+                            notify.push(response.mess, notify.EType.SUCCESS);
+                            notify.loading();
+                            setTimeout(function () {
+                                window.location.href = baseUrl + "?roomId=" +formData.get("CinemaRoomId");
+                            }, 3000);
+
+                        } else {
+                            notify.push(response.mess, notify.EType.DANGER);
+                            $(':input[type="submit"]').prop('disabled', false);
+                        }
+                    },
+                    (jqXHR, textStatus) => {
+                        const mess = `Request failed: ${textStatus}`;
+                        notify.push(mess, notify.EType.DANGER);
+                        $(':input[type="submit"]').prop('disabled', false);
+                    }
+                );
+            });
+
+        });
+    </script>
+}

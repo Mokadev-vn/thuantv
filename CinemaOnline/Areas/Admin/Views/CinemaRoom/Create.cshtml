@@ -1,0 +1,489 @@
+﻿@using System.Web.Mvc
+@using BELibrary.Constant
+@using BELibrary.Entity
+@using WebGrease
+@model CinemaRoom
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- FORM VALIDATION ON TABS -->
+<!--===================================================-->
+<div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">@ViewBag.Feature</h3>
+    </div>
+    <div class="panel-body">
+
+        <!-- Tabs Content -->
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <form id="cinema-form" class="form-horizontal" action="#" method="post">
+            @if (ViewBag.IsEdit)
+            {
+                <input type="hidden" value="true" name="IsEdit" />
+                <input type="hidden" value="@Model.Id" name="Id" />
+            }
+            else
+            {
+                <input type="hidden" value="false" name="IsEdit" />
+            }
+            <input type="hidden" name="Area" value="@Model.Area" />
+            <input type="hidden" name="RowQuantity" value="@Model.RowQuantity" />
+            <input type="hidden" name="SeatQuantity" value="@Model.SeatQuantity" />
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Tên phòng*</label>
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Chất lượng âm thanh</label>
+                    <select name="SoundQuality" value="@Model.SoundQuality" class="form-control">
+                        @{
+                            foreach (var item in SoundQuality.Datas)
+                            {
+                                <option value="@item.Name">@item.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8" style="margin-bottom: 10px;">
+                    <label class="control-label">Trạng thái</label>
+                    @{
+                        if (Model.Status == 0)
+                        {
+                            <div class="radio">
+                                <input id="demo-radio-7" class="magic-radio" type="radio" name="Status" value="0" checked>
+                                <label for="demo-radio-7">Sắp chiếu</label>
+
+                                <input id="demo-radio-8" class="magic-radio" type="radio" name="Status" value="1">
+                                <label for="demo-radio-8">Đang chiếu</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="radio">
+                                <input id="demo-radio-7" class="magic-radio" type="radio" name="Status" value="0">
+                                <label for="demo-radio-7">Sắp chiếu</label>
+
+                                <input id="demo-radio-8" class="magic-radio" type="radio" name="Status" value="1" checked>
+                                <label for="demo-radio-8">Đang chiếu</label>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            @*<p class="text-main text-bold">Second Tab</p>*@
+            <div class="row">
+                <div class="col-lg-2"></div>
+                <div class="col-sm-8 table-toolbar-left">
+                    <label class="control-label">Danh sách ghế</label>
+                    <a class="btn btn-success pull-right" data-target="#creation-modal" data-toggle="modal">
+                        <i class="demo-pli-add"></i> Thêm hàng ghế mới
+                    </a>
+                </div>
+            </div>
+            <div class="row text-center mg-t-b-35-50" id="seat-container">
+            </div>
+            <div class="row text-center mg-t-b-35-50">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-sm pull-left" style="background-color: #767A80; color: white">Đã đặt</button>
+                    <button type="button" class="btn btn-sm pull-left" style="background-color: #F22314; color: white; margin-left: 4px;">Đang chọn</button>
+                </div>
+                <div class="col-lg-4">
+                    @{foreach (var item in ViewBag.SeatTypes)
+                        {
+                            <button type="button" class="btn btn-sm pull-right" style="background-color: @item.Color; color: white; margin-left: 4px;">@item.Name</button>
+                        }
+                    }
+                </div>
+                <div class="col-lg-2"></div>
+            </div>
+            <div class="tab-footer clearfix">
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
+                        @{
+                            if (ViewBag.IsEdit)
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Lưu</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Thêm</button>
+                            }
+                        }
+                    </div>
+                    <div class="col-lg-2"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--Create Seat Row-->
+<div class="modal fade" id="creation-modal" role="dialog" tabindex="-1" aria-labelledby="create" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="form-row-seat" class="form-horizontal" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Thêm hàng ghế mới</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="IsEdit" value="false" />
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Tên hàng ghế</label>
+                            <input type="text" class="form-control" name="Row" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Số ghế</label>
+                            <input type="text" class="form-control" name="SeatQuantity" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Loại ghế</label>
+                            <select class="selectpicker form-control" name="SeatType">
+                                @{
+                                    foreach (var item in ViewBag.SeatTypes)
+                                    {
+                                        <option value="@item.Id|@item.Color">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Edit Seat Row-->
+<div class="modal fade" id="editing-modal" role="dialog" tabindex="-1" aria-labelledby="create" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="form-row-edit" class="form-horizontal" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Sửa hàng ghế</h4>
+                </div>
+
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="OldRow" />
+                    <input type="hidden" name="IsEdit" value="false" />
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Tên hàng ghế</label>
+                            <input type="text" class="form-control" name="Row" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Số ghế</label>
+                            <input type="text" class="form-control" name="SeatQuantity" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Loại ghế</label>
+                            <select class="selectpicker form-control" name="SeatType">
+                                @{
+                                    foreach (var item in ViewBag.SeatTypes)
+                                    {
+                                        <option value="@item.Id|@item.Color">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @{
+            if (Model.Seats.Count == 0)
+            {
+                @Html.Raw("var seats = [];")
+            }
+            else
+            {
+                @Html.Raw("var seats = "+Json.Encode(Model.Seats)+";")
+            }
+        }
+
+        function addSeatRow() {
+            var rowSeat = form.serializeFormJSON($('#form-row-seat'));
+            if (seats.filter((elm) => {
+                return elm.Row === rowSeat.Row && !elm.IsDelete
+            }).length > 0) {
+                notify.push(mess.cinemaRoom.rowExisted.replace('{0}',rowSeat.Row), notify.EType.DANGER);
+                return false;
+            }
+            var seatTypeId = rowSeat.SeatType.split('|')[0];
+            var color = rowSeat.SeatType.split('|')[1];
+            for (var index = 0; index < rowSeat.SeatQuantity; index++) {
+                var newSeat = {
+                    Id: '',
+                    Row: rowSeat.Row,
+                    Col: (index + 1).toString(),
+                    Status: 0,
+                    Color: color,
+                    CinemaRoomId: '',
+                    SeatTypeId: seatTypeId,
+                    IsDelete: false
+                }
+                seats.push(newSeat);
+            }
+            showSeats(seats);
+        }
+
+        function showSeats(_seats) {
+            _seats.sort((a, b) => {
+                if (a.Row == b.Row) {
+                    x = parseInt(a.Col);
+                    y = parseInt(b.Col);
+                    return x > y ? 1 : x === y ? 0 : -1;
+                } else {
+                    return a.Row.localeCompare(b.Row);
+                }
+            })
+            var seatContainer = $('#seat-container');
+            seatContainer.html("");
+            if (_seats.length === 0) {
+                return;
+            }
+            var oldRow = _seats[0].Row;
+            var rowTemplate = "<div class='col-lg-12' id='seat-row-{0}'>";
+            $.each(_seats,
+                (index, elm) => {
+                    if (elm.IsDelete == true) {
+                        return;
+                    }
+                    if (oldRow !== elm.Row) {
+                        rowTemplate += "<button type='button' class='btn btn-xs btn-info mg-5-2' onclick='editSeatRow(\"" + oldRow
+                            + "\")'><i class='demo-psi-pen-5 icon-lg'></i></button><button type='button' class='btn btn-xs btn-danger mg-5-2' onclick='deleteSeatRow(\"" + oldRow
+                            +"\")'><i class='demo-psi-recycling icon-lg'></i></button></div>";
+                        seatContainer.append(rowTemplate.replace('{0}', elm.Row));
+                        rowTemplate = "<div class='col-lg-12'>";
+                    }
+                    rowTemplate += "<button class='btn mg-5-2' style='width:50px;height:35px;background-color: " +
+                        elm.Color +
+                        ";color: white;'>" +
+                        elm.Row +
+                        elm.Col +
+                        "</button>";
+                    oldRow = _seats[index].Row;
+                });
+            var lastRow = _seats[_seats.length - 1].Row;
+            rowTemplate += "<button type='button' class='btn btn-xs btn-info mg-5-2' onclick='editSeatRow(\"" + lastRow
+                + "\")'><i class='demo-psi-pen-5 icon-lg'></i></button><button type='button' class='btn btn-xs btn-danger mg-5-2' onclick='deleteSeatRow(\"" + lastRow
+                +"\")'><i class='demo-psi-recycling icon-lg'></i></button></div>";
+            seatContainer.append(rowTemplate.replace('{0}', lastRow));
+        }
+
+        function editSeatRow(row) {
+            _seats = seats.filter((elm) => {
+                return elm.Row == row;
+            })
+            if (_seats.length == 0) return;
+            var rowName = _seats[0].Row;
+            var seatQuantity = _seats.length;
+            var seatType = _seats[0].SeatTypeId + '|' + _seats[0].Color;
+            $('#form-row-edit input[name="OldRow"]').val(rowName);
+            $('#form-row-edit input[name="Row"]').val(rowName);
+            $('#form-row-edit input[name="SeatQuantity"]').val(seatQuantity);
+            $('#form-row-edit select[name="SeatType"]').val(seatType);
+            $('#editing-modal').modal('show');
+        }
+
+        function updateSeatRow() {
+            var rowSeat = form.serializeFormJSON($('#form-row-edit'));
+            if (seats.filter((elm) => { return elm.Row === rowSeat.Row && elm.Row !== rowSeat.OldRow }).length > 0) {
+                notify.push(mess.cinemaRoom.rowExisted.replace('{0}',rowSeat.Row), notify.EType.DANGER);
+                return false;
+            }
+            var seatTypeId = rowSeat.SeatType.split('|')[0];
+            var color = rowSeat.SeatType.split('|')[1];
+            var newSeats = [];
+            for (var index = 0; index < rowSeat.SeatQuantity; index++) {
+                var newSeat = {
+                    Id: '',
+                    Row: rowSeat.Row,
+                    Col: (index + 1).toString(),
+                    Status: 0,
+                    Color: color,
+                    CinemaRoomId: '',
+                    SeatTypeId: seatTypeId,
+                    IsDelete: false
+                }
+                newSeats.push(newSeat);
+            }
+            var newSeatsIndex = 0;
+            var lastIndex = seats.length - 1;
+            var oldSeatQuantity = 1;
+            $.each(seats, (index, elm) => {
+                if (elm.Row === rowSeat.OldRow) {
+                    if (oldSeatQuantity > rowSeat.SeatQuantity) {
+                        elm.IsDelete = true;
+                    }
+                    else {
+                        elm.Row = newSeats[newSeatsIndex].Row;
+                        elm.Col = newSeats[newSeatsIndex].Col;
+                        if (elm.Status === 0) {
+                            elm.Color = newSeats[newSeatsIndex].Color;
+                        }
+                        elm.SeatTypeId = newSeats[newSeatsIndex].SeatTypeId;
+                        ++newSeatsIndex;
+                        lastIndex = index;
+                    }
+                    oldSeatQuantity++;
+                }
+            })
+            for (var index = newSeatsIndex; index <= newSeats.length - 1; index++) {
+                seats.splice(lastIndex + 1, 0, newSeats[index]);
+                ++lastIndex;
+            }
+            showSeats(seats);
+            $('#editing-modal').modal('hide');
+        }
+
+        function deleteSeatRow(row) {
+            seats = seats.filter((elm) => {
+                if (elm.Row === row) {
+                    elm.IsDelete = true;
+                    if (elm.Id !== '') {
+                        return elm;
+                    }
+                } else {
+                    return elm;
+                }
+            })
+            showSeats(seats);
+        }
+
+        showSeats(seats);
+    </script>
+    <script>
+        const baseUrl = "/admin/CinemaRoom";
+        //Valid
+        const cinemaFields = {
+            Name: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tên phòng là cần thiết và không được trống!'
+                    }
+                }
+            },
+            SoundQuality: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Chất lượng âm thanh là cần thiết và không được trống'
+                    }
+                }
+            }
+        }
+        const seatRowFields = {
+            Row: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tên hàng ghế là cần thiết và không được trống!'
+                    }
+                }
+            },
+            SeatQuantity: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Số lượng ghế là cần thiết và không được trống'
+                    }
+                }
+            },
+        }
+        validator.valid('cinema-form', cinemaFields, (e) => {
+            e.preventDefault();
+            var formData = form.serializeFormJSON($('#cinema-form'));
+            formData.SeatQuantity = seats.length;
+            formData.Seats = seats;
+            formData.Area = parseFloat('0');
+            formData.RowQuantity = 0;
+            formData.Status = parseInt(formData.Status);
+            formData.IsEdit = formData.IsEdit === 'true';
+
+            ajax.createOrUpdateByJson(`${baseUrl}/CreateOrEdit`, JSON.stringify(formData),
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.href;
+                        }, 3000);
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    let mess = "Request failed: " + textStatus;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+        });
+
+        validator.valid('form-row-edit', seatRowFields, (e) => {
+            e.preventDefault();
+            $('#form-row-edit button.btn-success').attr('disabled', false)
+            updateSeatRow()
+
+        });
+
+        validator.valid('form-row-seat', seatRowFields, (e) => {
+            e.preventDefault();
+            $('#form-row-seat button.btn-success').attr('disabled', false)
+            addSeatRow()
+        });
+    </script>
+}

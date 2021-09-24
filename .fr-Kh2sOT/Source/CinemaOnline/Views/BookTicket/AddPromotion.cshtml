@@ -1,0 +1,192 @@
+﻿@using BELibrary.Entity
+@using BELibrary.Models.View
+@using BELibrary.Extendsions
+@{
+    ViewBag.Title = "ReserveSeat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model ReserveTicketDto
+<style>
+    /* container */
+
+    #share {
+        width: 100%;
+        margin: 20px auto;
+    }
+
+        /* buttons */
+
+        #share a {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 4px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #fff;
+            opacity: 0.75;
+            transition: opacity 0.15s linear;
+        }
+
+            #share a:hover {
+                opacity: 1;
+            }
+
+        /* icons */
+
+        #share i {
+            position: relative;
+            top: 45%;
+            margin-left: 6px;
+            transform: translateY(-50%);
+        }
+
+    /* colors */
+
+    .facebook {
+        background: #3b5998;
+    }
+
+    .twitter {
+        background: #55acee;
+    }
+
+    .googleplus {
+        background: #dd4b39;
+    }
+
+    .linkedin {
+        background: #0077b5;
+    }
+
+    .pinterest {
+        background: #cb2027;
+    }
+
+    .search__button {
+        padding: 8px 12px;
+    }
+
+    .sits-color {
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        top: 5px;
+        left: 0;
+    }
+
+    .topping-control {
+        width: 50px;
+        color: black;
+        display: inline-block;
+        height: 20px;
+        padding: 2px 4px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>
+<!-- Search bar -->
+<div class="search-wrapper" style="padding-top: 80px; height: auto">
+    <div class="container container--add">
+        <form id='search-form' method='get' class="search" style="padding-bottom: 15px;">
+            <input type="text" class="search__field" placeholder="Tìm kiếm">
+            <select name="sorting_item" id="search-sort" class="search__sort" tabindex="0">
+                <option value="1" selected='selected'>By title</option>
+                <option value="2">By year</option>
+                <option value="3">By producer</option>
+                <option value="4">By title</option>
+                <option value="5">By year</option>
+            </select>
+            <button type='submit' class="btn btn-md btn--danger search__button">Tìm kiếm</button>
+        </form>
+    </div>
+</div>
+<section class="container">
+    <div class="order-container">
+        <div class="order">
+            <img class="order__images" alt='' src="/Content/images/tickets.png">
+            <p class="order__title">Đặt vé <br><span class="order__descript">và tận hưởng bộ phim vui vẻ</span></p>
+        </div>
+    </div>
+    <div class="order-step-area">
+        <div class="order-step second--step">Thêm mã khuyến mãi</div>
+    </div>
+    <div class="col-sm-12">
+        <div class="checkout-wrapper">
+            <h2 class="page-heading">Vé</h2>
+            <ul class="book-result">
+                <li class="book-result__item">Số vé: <span class="book-result__count booking-ticket">@Model.SeatIds.Count()</span></li>
+                <li class="book-result__item">Đơn giá: <span class="book-result__count booking-price">@((Model.TotalPrice / Model.SeatIds.Count()).GetVnCurrency())</span></li>
+                <li class="book-result__item">Tổng: <span class="book-result__count booking-cost">@((Model.TotalPrice).GetVnCurrency())</span></li>
+            </ul>
+            <h2 class="page-heading">Topping</h2>
+            @{
+                foreach (var item in Model.Toppings)
+                {
+                    <ul class="book-result row">
+                        <li class="book-result__item col-lg-3">Topping: <span class="book-result__count booking-ticket ">@item.Name</span></li>
+                        <li class="book-result__item col-lg-3">Số lượng: <span class="book-result__count booking-ticket ">@item.Quantity</span></li>
+                        <li class="book-result__item col-lg-3">Đơn giá: <span class="book-result__count booking-price ">@item.Price.GetVnCurrency()</span></li>
+                    </ul>
+                }
+            }
+            <ul class="book-result row">
+                <li class="col-lg-6"></li>
+                <li class="book-result__item col-lg-3">Tổng: <span class="book-result__count booking-cost">@((Model.Toppings.Sum(x=>x.Price*x.Quantity)).GetVnCurrency())</span></li>
+            </ul>
+
+            <h2 class="page-heading">Khuyến mãi</h2>
+
+            <form id='contact-info' method='post' novalidate="" class="form contact-info">
+                <div class="contact-info__field contact-info__field-mail">
+                    <input type='text' id='film-code' placeholder='Cho phim' class="form__mail">
+                </div>
+                <div class="contact-info__field contact-info__field-tel">
+                    <input type='text' id='topping-code' placeholder='Cho topping' class="form__mail">
+                </div>
+            </form>            
+
+        </div>
+
+        <div class="order">
+            <a onclick="nextStep()" class="btn btn-md btn--warning btn--wide">Xác nhận</a>
+        </div>
+        <!-- Movie preview item -->
+        <div class="clearfix"></div>
+
+        <div class="booking-pagination">
+            <a href="/Film/Detail?id=@Model.FilmId" class="booking-pagination__prev">
+                <p class="arrow__text arrow--prev">Quay lại</p>
+                <span class="arrow__info">Chọn topping</span>
+            </a>
+            <a href="#" class="booking-pagination__next hide--arrow">
+                <p class="arrow__text arrow--next">next step</p>
+                <span class="arrow__info"></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        var reserveTicket = JSON.parse('@Html.Raw(Json.Encode(Model))');        
+
+        function nextStep() {
+            reserveTicket.FilmPromotionCode = $('#film-code').val();
+            reserveTicket.ToppingPromotionCode = $('#topping-code').val();
+            reserveTicket.Status = 2;
+            window.location.href = window.location.origin + '/BookTicket/CheckPromotion?jsonData=' + JSON.stringify(reserveTicket);
+        }           
+
+        var showError = () => {
+            if (reserveTicket.Status == 4) {
+                alertify.set('notifier','delay', 5);
+                alertify.set('notifier', 'position', 'top-right');
+                alertify.error(reserveTicket.Message);
+            }            
+        }
+
+        showError();
+
+    </script>
+}

@@ -1,0 +1,252 @@
+﻿@using BELibrary.Models.View
+
+@{
+    var bestChoices = (List<FilmView>)ViewBag.BestChoices;
+    var films = (List<FilmView>)ViewBag.Films;
+}
+<!-- Section: home -->
+@Html.Partial("_PartialSlide")
+<!-- Main content -->
+<section class="container">
+    <div class="movie-best">
+        <div class="col-sm-10 col-sm-offset-1 movie-best__rating">Lựa chọn ngay</div>
+        <div class="col-sm-12 change--col">
+            @{
+                int index = 0;
+                bool hiden = false;
+                foreach (var bestChoice in bestChoices)
+                {
+                    <div class="movie-beta__item @(hiden?"hidden-xs hidden-sm":"")">
+                        <a href="/film/detail?id=@bestChoice.Id">
+                            <img alt='' src="@bestChoice.BannerUrl">
+                        </a>
+                        <span class="best-rate">5.0</span>
+
+                        <ul class="movie-beta__info">
+                            <li><span class="best-voted">71 people voted today</span></li>
+                            <li>
+                                <p class="movie__time">@bestChoice.Time</p>
+                                <p>
+                                    @{
+                                        if (bestChoice.FilmMovieTypes.Count > 0)
+                                        {
+                                            var last = bestChoice.FilmMovieTypes.Last();
+                                            foreach (var ftype in bestChoice.FilmMovieTypes)
+                                            {
+                                                if (ftype.Equals(last))
+                                                {
+                                                    @ftype
+                                                }
+                                                else
+                                                {
+                                                    @(ftype + " | ");
+                                                }
+
+                                            }
+                                        }
+
+                                    }
+                                </p>
+                                <p>38 comments</p>
+                            </li>
+                            <li class="last-block">
+                                <a href="/film/detail?id=@bestChoice.Id" class="slide__link">Xem thêm</a>
+                            </li>
+                        </ul>
+                    </div>
+                    index++;
+                    if (index >= 2)
+                    {
+                        hiden = true;
+                    }
+                }
+            }
+        </div>
+        <div class="col-sm-10 col-sm-offset-1 movie-best__check">check all movies now playing</div>
+    </div>
+
+    <div class="col-sm-12">
+        <div class="mega-select-present mega-select-top mega-select--full">
+            <form action="#" method="post" novalidate="novalidate" id="formSearch">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-3 col-sm-12">
+                                <input type="text" class="form-control search-slt" placeholder="Nhập từ khóa" id="keywords">
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-12 ">
+                                <select class="form-control search-slt" id="slFilter">
+                                    <option value="1" selected="">Tất cả</option>
+                                    <option value="filmName">Tên phim</option>
+                                    <option value="director">Đạo diễn</option>
+                                    <option value="actor">Diễn viên</option>
+                                    <option value="country">Quốc gia</option>
+                                    <option value="category">Thể loại</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                                <button type="submit" class="btn btn-danger wrn-btn" id="search">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <h2 id='target' class="page-heading heading--outcontainer">Now in the cinema</h2>
+
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-8 col-md-9">
+                <!-- Movie variant with time -->
+                @{
+                    bool isLeft = true;
+                    int i = 0;
+                    foreach (var item in films)
+                    {
+
+                        <div class="col-md-6 movie movie--test @(isLeft?"movie--test--light movie--test--left":"movie--test--dark movie--test--right")">
+                            <div class="movie__images fix">
+                                <a href="/film/detail?id=@item.Id" class="movie-beta__link">
+                                    <img alt='@item.Name' src="@item.Image">
+                                </a>
+                            </div>
+                            <div class="movie__info">
+                                <a href='/film/detail?id=@item.Id' class="movie__title">@item.Name  </a>
+
+                                <p class="movie__time">@(item.Time != null ? item.Time.ToString() : "") min</p>
+
+                                <p class="movie__option">
+                                    @{ 
+                                        if (item.FilmMovieTypes.Count > 0)
+                                        {
+                                            var last = item.FilmMovieTypes.Last();
+                                            foreach (var ftype in item.FilmMovieTypes)
+                                            {
+                                                if (ftype.Equals(last))
+                                                {
+                                                <a href="/Film/Search?category=@ftype"> @ftype</a>
+                                                }
+                                                else
+                                                {
+                                                <a href="/Film/Search?category=@ftype">@(ftype + " | ")</a>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                </p>
+                                <div class="movie__rate">
+                                    <div class="score"></div>
+                                    <span class="movie__rating">4.1</span>
+                                </div>
+                            </div>
+                        </div>
+                        i++;
+                        if (i % 2 == 0)
+                        {
+
+                            isLeft = !isLeft;
+                        }
+                    }
+                }
+            </div>
+
+            <aside class="col-sm-4 col-md-3">
+                <div class="sitebar first-banner--left">
+                    <div class="banner-wrap first-banner--left">
+                        <img alt='banner' src="~/Content/images/banners/sale.jpg">
+                    </div>
+
+                    <div class="banner-wrap">
+                        <img alt='banner' src="~/Content/images/banners/sport.jpg">
+                    </div>
+
+                    <div class="banner-wrap banner-wrap--last">
+                        <img alt='banner' src="~/Content/images/banners/boots.jpg">
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div class="col-sm-12">
+        <h2 class="page-heading">Latest news</h2>
+
+        <div class="col-sm-4 similar-wrap col--remove">
+            <div class="post post--preview post--preview--wide">
+                <div class="post__image">
+                    <img alt='' src="~/Content/images/client-photo/post-thor.jpg">
+                    <div class="social social--position social--hide">
+                        <span class="social__name">Share:</span>
+                        <a href='#' class="social__variant social--first fa fa-facebook"></a>
+                        <a href='#' class="social__variant social--second fa fa-twitter"></a>
+                        <a href='#' class="social__variant social--third fa fa-vk"></a>
+                    </div>
+                </div>
+                <p class="post__date">22 October 2013 </p>
+                <a href="single-page-left.html" class="post__title">"Thor: The Dark World" - World Premiere</a>
+                <a href="single-page-left.html" class="btn read-more post--btn">read more</a>
+            </div>
+        </div>
+        <div class="col-sm-4 similar-wrap col--remove">
+            <div class="post post--preview post--preview--wide">
+                <div class="post__image">
+                    <img alt='' src="~/Content/images/client-photo/post-annual.jpg">
+                    <div class="social social--position social--hide">
+                        <span class="social__name">Share:</span>
+                        <a href='#' class="social__variant social--first fa fa-facebook"></a>
+                        <a href='#' class="social__variant social--second fa fa-twitter"></a>
+                        <a href='#' class="social__variant social--third fa fa-vk"></a>
+                    </div>
+                </div>
+                <p class="post__date">22 October 2013 </p>
+                <a href="single-page-left.html" class="post__title">30th Annual Night Of Stars Presented By The Fashion Group International</a>
+                <a href="single-page-left.html" class="btn read-more post--btn">read more</a>
+            </div>
+        </div>
+        <div class="col-sm-4 similar-wrap col--remove">
+            <div class="post post--preview post--preview--wide">
+                <div class="post__image">
+                    <img alt='' src="~/Content/images/client-photo/post-awards.jpg">
+                    <div class="social social--position social--hide">
+                        <span class="social__name">Share:</span>
+                        <a href='#' class="social__variant social--first fa fa-facebook"></a>
+                        <a href='#' class="social__variant social--second fa fa-twitter"></a>
+                        <a href='#' class="social__variant social--third fa fa-vk"></a>
+                    </div>
+                </div>
+                <p class="post__date">22 October 2013 </p>
+                <a href="single-page-left.html" class="post__title">Hollywood Film Awards 2013</a>
+                <a href="single-page-left.html" class="btn read-more post--btn">read more</a>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+
+    <script src="~/Scripts/js/base/click.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+              $('#search').click(function () {
+                $('#formSearch').submit();
+            });
+            $('#formSearch').submit(function (e) {
+                e.preventDefault();
+                utils.loading();
+                let url = "";
+                const filter = $("#slFilter").val();
+                const keywords = $("#keywords").val();
+                if (filter === "1") {
+                    url = `/Film/Search?keyword=${keywords}`;
+                } else {
+                    url = `/Film/Search?${filter}=${keywords}`;
+                }
+                window.location.href = url;
+            });
+        });
+    </script>
+}
+ 

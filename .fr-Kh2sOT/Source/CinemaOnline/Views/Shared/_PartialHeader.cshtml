@@ -1,0 +1,135 @@
+﻿@using CinemaOnline.Handler
+@using BELibrary.Utils
+@{
+    var name = "";
+    if (CookiesManage.Logined())
+    {
+        var user = CookiesManage.GetUser();
+        var names = user.FullName.Split(' ');
+        if (names.Length >= 3)
+        {
+            name = names[0] + " " + names[names.Length - 1];
+        }
+        else
+        {
+            name = user.FullName;
+        }
+    }
+
+   
+}
+
+<style>
+    .login-group {
+        display: inline-block;
+        padding-top: 10px;
+        padding-left: 4px;
+        padding-bottom: 13px;
+        min-width: 104px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .login-client {
+        position: absolute;
+        top: 13px;
+        left: 25px;
+        z-index: 15;
+        font: 13px 'Roboto', sans-serif;
+        transition: 0.3s;
+    }
+
+    .auth__show {
+    }
+
+    .auth--home {
+        right: 220px;
+    }
+
+        .auth--home a:hover {
+            color: white
+        }
+
+        .auth--home a:focus {
+            color: white
+        }
+</style>
+
+<header class="header-wrapper header-wrapper--home" style="position: fixed">
+    <div class="container">
+        <!-- Logo link-->
+        <a href='/' class="logo">
+            <img alt='logo' src="~/Content/images/logo.png">
+        </a>
+
+        <!-- Main website navigation-->
+        <nav id="navigation-box">
+            <!-- Toggle for mobile menu mode -->
+            <a href="#" id="navigation-toggle">
+                <span class="menu-icon">
+                    <span class="icon-toggle" role="button" aria-label="Toggle Navigation">
+                        <span class="lines"></span>
+                    </span>
+                </span>
+            </a>
+
+            <!-- Link navigation -->
+            <ul id="navigation">
+                <li>
+                    <span class="sub-nav-toggle plus"></span>
+                    <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                    <span class="sub-nav-toggle plus"></span>
+                    <a href="/film">Phim</a>
+                    <ul>
+                        <li class="menu__nav-item"><a href="/film">Danh sách film</a></li>
+                        <li class="menu__nav-item"><a href="#">Phim theo thể loại</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="sub-nav-toggle plus"></span>
+                    <a href="#">Phòng chiếu</a>
+                </li>
+                <li>
+                    <span class="sub-nav-toggle plus"></span>
+                    <a href="#">Tin Tức</a>
+                </li>
+                <li>
+                    <span class="sub-nav-toggle plus"></span>
+                    <a href="/gallery">Thư viện</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Additional header buttons / Auth and direct link to booking-->
+        <div class="control-panel">
+            <div class="auth auth--home">
+                @if (CookiesManage.Logined())
+                {
+                    <div class="auth__show">
+                        <span class="auth__image">
+                            <img alt="" style="border-radius: 100%;" src=" @CookiesManage.GetUser().LinkAvata">
+                        </span>
+                    </div>
+                    <a href="/Account" class="btn btn--sign btn--singin">
+                        @name
+                    </a>
+
+                }
+                else
+                {
+                    <div class="login-group">
+                        <a href="/Account/Login" class="btn btn-primary login-client">Đăng nhập</a>
+                    </div>
+
+                }
+                <ul class="auth__function">
+                    <li><a href="/Account" class="auth__function-item">Trang cá nhân</a></li>
+                    <li><a href="/Account/Logout" class="auth__function-item">Đăng xuất</a></li>
+                </ul>
+            </div>
+             
+        </div>
+    </div>
+</header>

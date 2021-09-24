@@ -1,0 +1,345 @@
+﻿@using System.Web.Mvc
+@using BELibrary.Entity
+@model Film
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var releaseDate = Model != null ? Model.ReleaseDate.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd");
+}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title">Block styled form</h3>
+            </div>
+
+            <!--Block Styled Form -->
+            <!--===================================================-->
+            <form method="post" id="form">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @if (ViewBag.isEdit)
+                {
+                    <input type="hidden" value="true" name="isEdit" />
+                    <input type="hidden" value="@Model.Id" name="Id" />
+                }
+                else
+                {
+                    <input type="hidden" value="false" name="isEdit" />
+                }
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                <label class="control-label">Tên phim</label>
+                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Thời lượng</label>
+                                @Html.EditorFor(model => model.Time, new { htmlAttributes = new { @class = "form-control", @type = "text", id = "txtTime" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Quốc gia</label>
+                                @Html.DropDownList("Country", (SelectList)ViewBag.Countries, "---Select---",
+                                 new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Giá</label>
+                                @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", @maxlength = 250, Type = "number" } })
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Đạo diễn</label>
+                                @Html.EditorFor(model => model.Directors, new { htmlAttributes = new { @class = "form-control", @maxlength = 50 } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Ngày phát hành</label>
+                                @Html.EditorFor(model => releaseDate, new { htmlAttributes = new { @class = "form-control", @maxlength = 250, Type = "date" } })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Giới hạn tuổi (Không giới hạn: 0)</label>
+                                @Html.EditorFor(model => model.AgeRestriction, new { htmlAttributes = new { @class = "form-control", @type = "number" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="control-label">Diễn viên</label>
+                                @Html.TextAreaFor(model => model.Actors, new { @class = "form-control", @rows = "6", @maxlength = 1000 })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="control-label">Nội dung</label>
+                                @Html.TextAreaFor(model => model.Detail, new { @class = "form-control", @id = "FullDescription", @rows = "50" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Thể loại</label>
+                                @Html.DropDownList("MovieTypes", (SelectList)ViewBag.MovieTypes,
+                                 new { multiple = "multiple", @class = "form-control", @required = "required", id = "combMovieTypes" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Loại phim</label>
+                                @Html.DropDownList("MovieDisplayTypes", (SelectList)ViewBag.MovieDisplayTypes,
+                                 new { multiple = "multiple", @class = "form-control", @required = "required", id = "combMovieDisplayTypes" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Ảnh đại diện</label>
+                                <div class="input-group mar-btm">
+                                    @Html.EditorFor(model => model.Image, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                                    <span class="input-group-btn" onclick="ChooseImgAvata()">
+                                        <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                                    </span>
+                                </div>
+                                @if (ViewBag.isEdit)
+                                {
+                                    <img class="img img-thumbnail" id="ImgAvt" src="@Model.Image" alt="" />
+                                }
+                                else
+                                {
+                                    <img class="img img-thumbnail" id="ImgAvt" src="" alt="" />
+                                }
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Banner Url</label>
+                                <div class="input-group mar-btm">
+                                    @Html.EditorFor(model => model.BannerUrl, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                                    <span class="input-group-btn" onclick="ChooseImg()">
+                                        <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                                    </span>
+                                </div>
+                                @if (ViewBag.isEdit)
+                                {
+                                    <img class="img img-thumbnail" id="Img" src="@Model.BannerUrl" alt="" />
+                                }
+                                else
+                                {
+                                    <img class="img img-thumbnail" id="Img" src="" alt="" />
+                                }
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label">Trailer Link</label>
+                                <div class="input-group mar-btm">
+                                    @Html.EditorFor(model => model.TrailerLink, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                                    <span class="input-group-btn" onclick="ChooseVideo()">
+                                        <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                                    </span>
+                                </div>
+                                @if (ViewBag.isEdit && Model.TrailerLink != "" && Model.TrailerLink != null)
+                                {
+                                    <video controls style="width:100%;padding-top: 10px;">
+                                        <source id="urlVideo" src="@Model.TrailerLink" type="video/mp4">
+                                        Your browser does not support HTML5 video.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <video style="width:100%;padding-top: 10px;" controls class="display-none" id="videoTag">
+                                        <source id="urlVideo" src="#" type="video/mp4">
+                                        Your browser does not support HTML5 video.
+                                    </video>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer text-left">
+                    <button class="btn btn-success" type="submit">Submit</button>
+                </div>
+            </form>
+            <!--===================================================-->
+            <!--End Block Styled Form -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $("#combMovieTypes").select2();
+            $("#combMovieDisplayTypes").select2();
+
+            $('#txtTime').mask('09:99:99', {
+                completed: function () {
+                    $('[name="Time"]').parents('.form-group').addClass("has-success")
+                }
+            });
+
+            CKEDITOR.replace("FullDescription", {
+                height: 500
+            });
+
+            //binding seleced val
+            if ($("input[name=Id]").val()) {
+                const selectedMovieTypes = JSON.parse('@Html.Raw(Json.Encode(ViewBag.SelectedMovieTypes))');
+
+                $('#combMovieTypes').val(selectedMovieTypes);
+                $('#combMovieTypes').trigger('change');
+
+                const selectedFilmMovieDisplayTypes = JSON.parse('@Html.Raw(Json.Encode(ViewBag.SelectedFilmMovieDisplayTypes))');
+
+                $('#combMovieDisplayTypes').val(selectedFilmMovieDisplayTypes);
+                $('#combMovieDisplayTypes').trigger('change');
+            }
+
+        });
+        $("#BannerUrl").change(function () {
+            const imgSrc = $("input[name=BannerUrl]").val();
+            if (imgSrc != "") {
+                $("#Img").attr("src", imgSrc);
+            }
+        });
+        $("#Image").change(function () {
+            const imgSrc = $("input[name=Image]").val();
+            if (imgSrc !== "") {
+                $("#ImgAvt").attr("src", imgSrc);
+            }
+        });
+        function ChooseImg() {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $("#Img").attr("src", fileUrl);
+                $("#BannerUrl").val(fileUrl);
+            }
+            finder.popup();
+        }
+        function ChooseImgAvata() {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $("#ImgAvt").attr("src", fileUrl);
+                $("#Image").val(fileUrl);
+            }
+            finder.popup();
+        }
+
+        function ChooseVideo() {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $("#urlVideo").attr("src", fileUrl);
+                $("#TrailerLink").val(fileUrl);
+                const vid = $("video")[0];
+                vid.load();
+                vid.addEventListener('loadeddata', function () {
+                    $("#videoTag").attr('class', 'display-block');
+
+                }, false);
+            }
+            finder.popup();
+        }
+
+        const baseUrl = '/admin/film';
+        // Valid
+        const fields = {
+            Name: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tên phim là bắt buộc và không thể để trống'
+                    }
+                }
+            },
+            Time: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Thời gian là bắt buộc và không thể để trống'
+                    }
+                }
+            },
+            Price: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Thời gian là bắt buộc và không thể để trống'
+                    }
+                }
+            },
+            Actors: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Actors là bắt buộc và không thể để trống'
+                    }
+                }
+            },
+            Directors: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Directors là bắt buộc và không thể để trống'
+                    }
+                }
+            }
+
+        }
+        validator.valid('form', fields, (e) => {
+            e.preventDefault();
+
+            var content = CKEDITOR.instances['FullDescription'].getData();
+            if (content.length <= 0) {
+                $.niftyNoty({
+                    type: 'danger',
+                    icon: 'fa fa-minus',
+                    message: "Nội dung không được bỏ trống",
+                    container: 'floating',
+                    timer: 3000
+                });
+                return;
+            }
+            var formData = new FormData(document.getElementById('form'));
+            formData.set("Detail", content);
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+                        setTimeout(function () {
+                            window.location.href = baseUrl;
+                        }, 3000);
+
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                         $(':input[type="submit"]').prop('disabled', false);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+                     $(':input[type="submit"]').prop('disabled', false);
+                }
+            );
+        });
+    </script>
+}

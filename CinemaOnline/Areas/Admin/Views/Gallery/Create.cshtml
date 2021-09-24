@@ -1,0 +1,180 @@
+﻿@using BELibrary.Entity
+@model Gallery
+
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">@ViewBag.Feature</h3>
+    </div>
+    <div class="panel-body">
+        <!-- Tabs Content -->
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <form id="form" class="form-horizontal" action="#" method="post">
+            @if (ViewBag.IsEdit)
+            {
+                <input type="hidden" value="true" name="IsEdit" />
+                <input type="hidden" value="@Model.Id" name="Id" />
+            }
+            else
+            {
+                <input type="hidden" value="false" name="IsEdit" />
+            }
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Tiêu đề*</label>
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Đường dẫn ảnh nhỏ*</label>
+                    <div class="input-group mar-btm">
+                        @Html.EditorFor(model => model.UrlThumb, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                        <span class="input-group-btn" onclick="ChooseImgThumb()">
+                            <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                        </span>
+                    </div>
+                    @if (ViewBag.isEdit)
+                    {
+                        <img class="img img-thumbnail" id="ImgGalleryThumb" src="@Model.UrlThumb" alt="" />
+                    }
+                    else
+                    {
+                        <img class="img img-thumbnail" id="ImgGalleryThumb" src="" alt="" />
+                    }
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <label class="control-label">Đường dẫn ảnh lớn*</label>
+                    <div class="input-group mar-btm">
+                        @Html.EditorFor(model => model.Url, new { htmlAttributes = new { @class = "form-control", @maxlength = 250 } })
+                        <span class="input-group-btn" onclick="ChooseImg()">
+                            <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                        </span>
+                    </div>
+                    @if (ViewBag.isEdit)
+                    {
+                        <img class="img img-thumbnail" id="ImgGallery" src="@Model.Url" alt="" />
+                    }
+                    else
+                    {
+                        <img class="img img-thumbnail" id="ImgGallery" src="" alt="" />
+                    }
+                </div>
+            </div>
+
+            <div class="tab-footer clearfix">
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
+                        @{
+                            if (ViewBag.IsEdit)
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Lưu</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success pull-right">Thêm</button>
+                            }
+                        }
+                    </div>
+                    <div class="col-lg-2"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+
+    <script>
+
+        function ChooseImg() {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $("#ImgGallery").attr("src", fileUrl);
+                $("#Url").val(fileUrl);
+            }
+            finder.popup();
+        }
+        function ChooseImgThumb() {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $("#ImgGalleryThumb").attr("src", fileUrl);
+                $("#UrlThumb").val(fileUrl);
+            }
+            finder.popup();
+        }
+
+        $(document).ready(function () {
+
+            $("#Url").change(function () {
+                const imgSrc = $("input[name=Url]").val();
+                if (imgSrc !== "") {
+                    $("#ImgGallery").attr("src", imgSrc);
+                }
+            });
+
+            $("#UrlThumb").change(function () {
+                const imgSrc = $("input[name=UrlThumb]").val();
+                if (imgSrc !== "") {
+                    $("#ImgGalleryThumb").attr("src", imgSrc);
+                }
+            });
+        });
+
+        const baseUrl = '/admin/gallery';
+        // Valid
+        const fields = {
+            Title: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tiêu đề là bắt buộc và không thể để trống'
+                    }
+                }
+            },
+            Url: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Đường dẫn là bắt buộc và không thể để trống'
+                    }
+                }
+            }
+        }
+        validator.valid('form', fields, (e) => {
+            e.preventDefault();
+
+            var formData = new FormData(document.getElementById('form'));
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+                        setTimeout(function () {
+                            window.location.href = baseUrl;
+                        }, 3000);
+
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                        $(':input[type="submit"]').prop('disabled', false);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+                    $(':input[type="submit"]').prop('disabled', false);
+                }
+            );
+        });
+    </script>
+
+}

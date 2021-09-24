@@ -1,0 +1,390 @@
+﻿@using BELibrary.Entity
+@using BELibrary.Models.View
+@using BELibrary.Extendsions
+@{
+    ViewBag.Title = "ReserveSeat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model ReserveSeatView
+<style>
+    /* container */
+
+    #share {
+        width: 100%;
+        margin: 20px auto;
+    }
+
+        /* buttons */
+
+        #share a {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 4px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #fff;
+            opacity: 0.75;
+            transition: opacity 0.15s linear;
+        }
+
+            #share a:hover {
+                opacity: 1;
+            }
+
+        /* icons */
+
+        #share i {
+            position: relative;
+            top: 45%;
+            margin-left: 6px;
+            transform: translateY(-50%);
+        }
+
+    /* colors */
+
+    .facebook {
+        background: #3b5998;
+    }
+
+    .twitter {
+        background: #55acee;
+    }
+
+    .googleplus {
+        background: #dd4b39;
+    }
+
+    .linkedin {
+        background: #0077b5;
+    }
+
+    .pinterest {
+        background: #cb2027;
+    }
+
+    .search__button {
+        padding: 8px 12px;
+    }
+
+    .sits-color {
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        top: 5px;
+        left: 0;
+    }
+</style>
+<!-- Search bar -->
+<div class="search-wrapper" style="padding-top: 80px; height: auto">
+    <div class="container container--add">
+        <form id='search-form' method='get' class="search" style="padding-bottom: 15px;">
+            <input type="text" class="search__field" placeholder="Tìm kiếm">
+            <select name="sorting_item" id="search-sort" class="search__sort" tabindex="0">
+                <option value="1" selected='selected'>By title</option>
+                <option value="2">By year</option>
+                <option value="3">By producer</option>
+                <option value="4">By title</option>
+                <option value="5">By year</option>
+            </select>
+            <button type='submit' class="btn btn-md btn--danger search__button">Tìm kiếm</button>
+        </form>
+    </div>
+</div>
+<section class="container">
+    <div class="order-container">
+        <div class="order">
+            <img class="order__images" alt='' src="/Content/images/tickets.png">
+            <p class="order__title">Đặt vé <br><span class="order__descript">và tận hưởng bộ phim vui vẻ</span></p>
+        </div>
+    </div>
+    <div class="order-step-area">
+        <div class="order-step second--step">Chọn ghế</div>
+    </div>
+
+    <div class="choose-sits">
+        <div class="choose-sits__info choose-sits__info--first">
+            <ul>
+                <li class="sits-price marker--none"><strong>Loại ghế</strong></li>
+                @{
+                    foreach (var st in ViewBag.SeatTypes)
+                    {
+                        <li class="sits-price" title="@(((double)st.Price+Model.Price).GetVnCurrency())"><span class="sits-color" style="background-color:@st.Color"></span> @st.Name</li>
+                    }
+                }
+            </ul>
+        </div>
+
+        <div class="choose-sits__info">
+            <ul>
+                <li class="sits-state sits-state--not">Không có sẵn</li>
+                <li class="sits-state sits-state--your">Đang chọn</li>
+            </ul>
+        </div>
+
+        <div class="col-sm-12 col-lg-10 col-lg-offset-1">
+            <div class="sits-area hidden-xs">
+                <div class="sits-anchor">Màn hình</div>
+
+                <div class="sits">
+                    <aside class="sits__line">
+                        @{
+                            foreach (var s in Model.CinemaRoom.Seats.OrderBy(s => s.Row).GroupBy(s => s.Row))
+                            {
+                                <span class="sits__indecator">@s.Key</span>
+                            }
+                        }
+
+                    </aside>
+
+                    @{
+                        var maxCol = 0;
+                        foreach (var r in Model.CinemaRoom.Seats.OrderBy(s => s.Row).GroupBy(s => s.Row))
+                        {
+                            <div class="sits__row">
+                                @{
+                                    if (r.Count() > maxCol)
+                                    {
+                                        maxCol = r.Count();
+                                    }
+                                    var listCol = r.OrderBy(o => Convert.ToInt32(o.Col)).Select((s, index) => new { index = index, value = s }).ToList();
+                                    foreach (var s in listCol)
+                                    {
+                                        var nextSeat = (s.index % 2 == 0 ? listCol[s.index + 1].value : listCol[s.index - 1].value);
+                                        <span class="sits__place sits-price--cheap" is-seat="true" is-chosen='@(s.value.Status == 1?"true":"false")' 
+                                              data-place='@s.value.GetSeatName()' data-next-place="@nextSeat.GetSeatName()" data-price='@(Model.Price+s.value.Price)'
+                                              is-double='@(((List<SeatType>)ViewBag.SeatTypes).CheckDoubleSeat(s.value.SeatTypeId.GetValueOrDefault()))' 
+                                              next-seat-id='@nextSeat.Id' seat-id='@s.value.Id' 
+                                              style="background-color:@(s.value.Status == 1?"#DBDEE1":s.value.Color);">@s.value.GetSeatName()</span>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+
+                    <aside id="seat-checked" class="sits__checked" style="height:calc(7*40px)">
+                        <div class="checked-place">
+
+                        </div>
+                        <div class="checked-result">
+                            0 đ
+                        </div>
+                    </aside>
+                    <footer class="sits__number">
+                        @{
+                            for (int col = 1; col <= maxCol; col++)
+                            {
+                                <span class="sits__indecator">@col</span>
+                            }
+                        }
+                    </footer>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 visible-xs">
+            <div class="sits-area--mobile">
+                <div class="sits-area--mobile-wrap">
+                    <div class="sits-select">
+                        <select name="sorting_item" class="sits__sort sit-row" tabindex="0">
+                            <option value="1" selected='selected'>A</option>
+                            <option value="2">B</option>
+                            <option value="3">C</option>
+                            <option value="4">D</option>
+                            <option value="5">E</option>
+                            <option value="6">F</option>
+                            <option value="7">G</option>
+                            <option value="8">I</option>
+                            <option value="9">J</option>
+                            <option value="10">K</option>
+                            <option value="11">L</option>
+                        </select>
+
+                        <select name="sorting_item" class="sits__sort sit-number" tabindex="1">
+                            <option value="1" selected='selected'>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                        </select>
+
+                        <a href="#" class="btn btn-md btn--warning toogle-sits">Choose sit</a>
+                    </div>
+                </div>
+
+                <a href="#" class="watchlist add-sits-line">Add new sit</a>
+
+                <aside class="sits__checked">
+                    <div class="checked-place">
+                        <span class="choosen-place"></span>
+                    </div>
+                    <div class="checked-result">
+                        $0
+                    </div>
+                </aside>
+
+                <img alt="" src="/Content/images/components/sits_mobile.png">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="clearfix"></div>
+<form id='film-and-time' class="booking-form" method='get' action='http://amovie.gozha.net/book3-buy.html'>
+
+    <input type='text' name='choosen-number' class="choosen-number">
+    <input type='text' name='choosen-number--cheap' class="choosen-number--cheap">
+    <input type='text' name='choosen-number--middle' class="choosen-number--middle">
+    <input type='text' name='choosen-number--expansive' class="choosen-number--expansive">
+    <input type='text' name='choosen-cost' class="choosen-cost">
+    <input type='text' name='choosen-sits' class="choosen-sits">
+
+
+    <div class="booking-pagination booking-pagination--margin">
+        <a href="/Film/Detail?id=@Model.CurrentBooking.FilmId" class="booking-pagination__prev">
+            <span class="arrow__text arrow--prev">Quay lại</span>
+            <span class="arrow__info">Đặt vé</span>
+        </a>
+        <a onclick="nextStep()" class="booking-pagination__next">
+            <span class="arrow__text arrow--next">Bước tiếp theo</span>
+            <span class="arrow__info">Topping</span>
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+        reserveTicket = JSON.parse('@Html.Raw(Json.Encode(Model.CurrentBooking))');
+        reserveTicket.SeatIds = [];
+        reserveTicket.Toppings = [];
+        var sum = 0;
+        var isChoseColor = '#DBDEE1';
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var chat = $.connection.cinemaRoomHub;
+            // Create a function that the hub can call back to display messages.
+            chat.client.addMessage = function (response) {
+                if (response.HubId == reserveTicket.HubId) {
+                    reserveTicket.StartBooking = response.StartBooking;
+                    return;
+                }
+                if (response.UserId == reserveTicket.UserId) {                    
+                    var spanList = $('span[is-seat="true"]');
+                    $.each(spanList, (index, elm) => {
+                        var seatId = elm.attributes['seat-id'].value;
+                        if (elm.className.includes('sits-state--your')) {
+                            var place = elm.attributes['data-place'].value;
+                            elm.className = elm.className.replace(' sits-state--your', '');
+                            $('.' + place + '').remove();
+                        }
+                    });
+                    sum = 0;                    
+                    reserveTicket.SeatIds = response.SeatIds;
+                    $.each(response.SeatIds, (index, elm) => {
+                        var spanElement = $('span[seat-id="' + elm + '"]')[0];
+                        var place = spanElement.attributes['data-place'].value;
+                        var price = spanElement.attributes['data-price'].value;
+                        if (spanElement.className.includes("sits-state--not")) {
+                            return;
+                        }
+                        spanElement.className = spanElement.className.replace(' sits-state--your','');
+                        spanElement.className += ' sits-state--your';
+                        $('.checked-place').prepend('<span class="choosen-place ' + place + '">' + place + '</span>');
+                        sum += parseFloat(price);
+                    })
+                    $('.checked-result').text(sum + ' đ');
+                }
+                else {
+                    var spanList = $('span[is-seat="true"]');
+                    $.each(spanList, (index, elm) => {
+                        if (elm.className.includes('sits-state--your')) {
+                            return;
+                        }
+                        else if (elm.className.includes('sits-state--not')) {
+                            elm.className = elm.className.replace(' sits-state--not','');
+                        }
+                    });
+                    $.each(response.SeatIds, (index, elm) => {
+                        var SpanElement = $('span[seat-id="' + elm + '"]')[0];
+                        if (SpanElement.className.includes("sits-state--not")) {
+                            return;
+                        }
+                        SpanElement.className = SpanElement.className.replace(' sits-state--not','');
+                        SpanElement.className+=' sits-state--not';
+                    })
+                }
+            };
+            $.connection.hub.start().done(function () {
+                reserveTicket.HubId = $.connection.hub.id;
+                $('.sits__place').click(function (e) {
+                e.preventDefault();
+                var place = $(this).attr('data-place');
+                var nextPlace = $(this).attr('data-next-place');
+                var ticketPrice = $(this).attr('data-price');
+                var seatId = $(this).attr('seat-id');
+                var nextSeatId = $(this).attr('next-seat-id');
+                var isDoubleSeat = $(this).attr('is-double') == 'true' ? true : false;
+                if ($(this).hasClass('sits-state--not')) {
+                    return;
+                }
+                if (!$(e.target).hasClass('sits-state--your')) {
+                    if (isDoubleSeat) {
+                        $('span[seat-id="' + nextSeatId + '"]').addClass('sits-state--your');
+                        $('.checked-place').prepend('<span class="choosen-place ' + nextPlace + '">' + nextPlace + '</span>');
+                        sum += parseFloat(ticketPrice);
+                        reserveTicket.SeatIds.push(nextSeatId);
+                    }
+                    $(this).addClass('sits-state--your');
+                    $('.checked-place').prepend('<span class="choosen-place ' + place + '">' + place + '</span>');
+                    sum += parseFloat(ticketPrice);
+                    reserveTicket.SeatIds.push(seatId);
+                    $('.checked-result').text(sum + ' đ');
+                }
+                else {
+                    $(this).removeClass('sits-state--your');
+                    $('.' + place + '').remove();
+                    sum -= parseFloat(ticketPrice);
+                    reserveTicket.SeatIds = reserveTicket.SeatIds.filter((data) => { return data != seatId });
+                    if (isDoubleSeat) {
+                        $('span[seat-id="' + nextSeatId + '"]').removeClass('sits-state--your');
+                        $('.' + nextPlace + '').remove();
+                        sum -= parseFloat(ticketPrice);
+                        reserveTicket.SeatIds = reserveTicket.SeatIds.filter((data) => { return data != nextSeatId });
+                    }
+
+                    $('.checked-result').text(sum + ' đ');
+                    }                    
+                chat.server.send(reserveTicket);
+                });
+                chat.server.send(reserveTicket);
+            });
+        });
+            // This optional function html-encodes messages for display in the page.
+            function htmlEncode(value) {
+                var encodedValue = $('<div />').text(value).html();
+                return encodedValue;
+        }
+
+        function nextStep() {
+            reserveTicket.TotalPrice = sum;
+            window.location.href = window.location.origin + '/BookTicket/SelectTopping?jsonData=' + JSON.stringify(reserveTicket);
+        }
+    </script>
+}
+

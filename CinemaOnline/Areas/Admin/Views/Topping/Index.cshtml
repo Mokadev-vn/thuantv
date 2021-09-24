@@ -1,0 +1,324 @@
+﻿@using BELibrary.Entity
+@using BELibrary.Utils
+@using BELibrary.Constant
+@model List<Topping>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-6 table-toolbar-left">
+                    <button data-target="#creation-modal" data-toggle="modal" id="demo-btn-addrow" class="btn btn-success"><i class="demo-pli-add"></i> Thêm</button>
+                </div>
+                <div class="col-sm-6 table-toolbar-right">
+                    <div class="form-group">
+                        <input id="demo-input-search2" type="text" placeholder="Tìm kiếm" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Tên topping</th>
+                        <th class="text-center">Loại topping</th>
+                        <th class="text-center">Giá( VNĐ)</th>
+                        <th class="text-center">Ảnh minh họa</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, i) => new { i, value }))
+                    {
+                        <tr id="row_@item.value.Id">
+                            <td class="text-center">@(item.i + 1)</td>
+                            <td class="text-center">@item.value.Name</td>
+                            <td class="text-center">@item.value.KindOfTopping</td>
+                            <td class="text-center">@item.value.Price</td>
+                            <td class="text-center"><img src="@item.value.ImageUrl" height="100" width="100" /></td>
+                            <td class="text-center">
+                                <button class="btn btn-info btn-icon" onclick="openEditingModal('@item.value.Id')"><i class="demo-psi-pen-5 icon-lg"></i></button>
+                                <button class="btn btn-danger btn-icon" onclick="deleteElement('@item.value.Id','@item.value.Name')"><i class="demo-psi-recycling icon-lg"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--Create-->
+<div class="modal fade" id="creation-modal" role="dialog" tabindex="-1" aria-labelledby="create" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="creation-form" class="form-horizontal" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Thêm mới @ViewBag.Element</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="isEdit" value="false" />
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Tên topping</label>
+                        <div class="col-lg-7">
+                            <input type="text" class="form-control" name="Name" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Loại topping</label>
+                        <div class="col-lg-7">
+                            <select class="selectpicker form-control" name="KindOfTopping">
+                                @{
+                                    foreach (var item in KindOfTopping.Datas)
+                                    {
+                                        <option value="@item.Name|@item.Value">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Giá</label>
+                        <div class="col-lg-7">
+                            <input type="text" class="form-control" name="Price" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Ảnh</label>
+                        <div class="col-lg-7">
+                            <input id="image-url-creation" type="text" class="form-control" name="ImageUrl" placeholder="" disabled>
+                            <span class="input-group-btn" onclick="ChooseImage('image-url-creation')">
+                                <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Edit-->
+<div class="modal fade" id="editing-modal" role="dialog" tabindex="-1" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editing-form" class="form-horizontal" action="#" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Chỉnh sửa @ViewBag.Element</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                    <input type="hidden" name="isEdit" value="true" />
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Tên topping</label>
+                        <div class="col-lg-7">
+                            <input type="text" class="form-control" name="Name" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Loại topping</label>
+                        <div class="col-lg-7">
+                            <select class="selectpicker form-control" name="KindOfTopping">
+                                @{
+                                    foreach (var item in KindOfTopping.Datas)
+                                    {
+                                        <option value="@item.Name|@item.Value">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Giá</label>
+                        <div class="col-lg-7">
+                            <input type="text" class="form-control" name="Price" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Ảnh</label>
+                        <div class="col-lg-7">
+                            <input id="image-url-editing" type="text" class="form-control" name="ImageUrl" placeholder="" disabled>
+                            <span class="input-group-btn" onclick="ChooseImage('image-url-editing')">
+                                <a class="btn btn-mint btn-icon"><i class="fa fa-cloud-upload icon-lg"></i></a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Script-->
+@section Scripts {
+    <script>
+        const baseUrl = "/admin/Topping";
+        // Valid
+        const fields = {
+            Name: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tên topping là cần thiết và không trống.'
+                    }
+                }
+            },
+            KindOfTopping: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Loại topping là cần thiết và không trống.'
+                    }
+                }
+            },
+            Price: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'The first name is required and cannot be empty'
+                    }
+                }
+            },
+            ImageUrl: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'The last name is required and cannot be empty'
+                    }
+                }
+            }
+        }
+        validator.valid('editing-form', fields, (e) => {
+            e.preventDefault();
+            var formData = new FormData(document.getElementById("editing-form"));
+            formData.set('ImageUrl', $('#image-url-editing').val());
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+
+        });
+        validator.valid('creation-form', fields, (e) => {
+            e.preventDefault();
+            var formData = new FormData(document.getElementById('creation-form'));
+            formData.set('ImageUrl', $('#image-url-creation').val());
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+                }
+            );
+        });
+
+        //Edit
+        function openEditingModal(id) {
+            ajax.get(`${baseUrl}/GetJson`, { id: id },
+                (response) => {
+                    if (response.status) {
+                        var obj = response.data;
+                        $('#editing-form input[name="Id"]').val(obj.Id);
+                        $('#editing-form input[name="Name"]').val(obj.Name);
+                        $('#editing-form input[name="KindOfTopping"]').val(obj.KindOfTopping);
+                        $('#editing-form input[name="Price"]').val(obj.Price);
+                        $('#editing-form input[name="ImageUrl"]').val(obj.ImageUrl);
+                        $('#editing-modal').modal('show');
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    let mess = "Request failed: " + textStatus;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+        }
+
+        //Del
+        function deleteElement(_id, name) {
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess, function (result) {
+                if (result) {
+                    ajax.del(`${baseUrl}/del`, { id: _id },
+                        (response) => {
+                            if (response.status) {
+                                notify.push(response.mess, notify.EType.SUCCESS);
+                                $("#row_" + _id).remove();
+                            } else {
+                                notify.push(mess, notify.EType.DANGER);
+                            }
+                        },
+                        (jqXHR, textStatus) => {
+                            let mess = "Request failed: " + textStatus;
+                            notify.push(mess, notify.EType.DANGER);
+
+                        }
+                    )
+                }
+            });
+        }
+
+        //
+        function ChooseImage(id) {
+            const finder = new CKFinder();
+            finder.selectActionFunction = function (fileUrl) {
+                $(`#${id}`).val(fileUrl);
+            }
+            finder.popup();
+        }
+    </script>
+}

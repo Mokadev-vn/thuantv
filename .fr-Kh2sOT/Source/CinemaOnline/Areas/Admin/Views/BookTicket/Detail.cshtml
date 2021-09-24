@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+@using BELibrary.Core.Utils
+@model CinemaOnline.Areas.Admin.Models.OrderView
+<div class="panel">
+    <div class="panel-body">
+        <div class="invoice-masthead">
+            <div class="invoice-text">
+                <h3 class="h1 text-uppercase text-thin mar-no text-primary">INVOICE</h3>
+            </div>
+            <div class="invoice-brand" style="white-space:nowrap">
+                <div class="invoice-logo" style="padding-top: 10px;">
+                    <img src="https://res.cloudinary.com/sauanla/image/upload/v1585406463/logo-dark_ajom1x.png" alt="">
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-bill row">
+            <div class="col-sm-4 text-xs-center" style="border-right: solid 1px pink;">
+                <table class="invoice-details" style="min-width: 350px;">
+                    <tbody>
+                        <tr>
+                            <td class="text-main text-bold">Họ Tên:</td>
+                            <td class="text-center text-info text-bold">@Model.FullName</td>
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold">Email:</td>
+                            <td class="text-center"> @Model.Email </td>
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold">  Số điện thoại:</td>
+                            <td class="text-center">@Model.Phone</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-4 text-xs-center" style="border-right: solid 1px pink;">
+                <table class="invoice-details" style="min-width: 350px;">
+                    <tbody>
+                        <tr>
+                            <td class="text-main text-bold">  Tên Phim:</td>
+                            <td class="text-center text-info text-bold">@Model.FilmName - @Model.FilmType</td>
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold"> Phòng:</td>
+                            <td class="text-center"> @Model.RoomName </td>
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold"> Lịch chiếu:</td>
+                            <td class="text-center">@Model.Time</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-4 text-xs-center">
+                <table class="invoice-details" style="min-width: 250px;">
+                    <tbody>
+                        <tr>
+                            <td class="text-main text-bold">Mã #</td>
+                            <td class="text-right text-info text-bold">@Model.TicketNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold">Trạng thái</td>
+                            @if (Model.Status == StatusOrder.Failure)
+                            {
+                                <td class="text-right"><span class="badge badge-dark">Thanh toán thất bại</span></td>
+                            }
+                            else if (Model.Status == StatusOrder.Pending)
+                            {
+                                <td class="text-right"><span class="badge badge-warning">Đang chờ thanh toán</span></td>
+                            }
+                            else
+                            {
+                                <td class="text-right"><span class="badge badge-success">Đã thanh toán</span></td>
+                            }
+                        </tr>
+                        <tr>
+                            <td class="text-main text-bold">Thời gian tạo</td>
+                            <td class="text-right">@Model.CreateDate</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <hr class="new-section-sm bord-no">
+
+        <div class="row">
+            <div class="col-lg-6 table-responsive">
+                <table class="table table-bordered invoice-summary">
+                    <thead>
+                        <tr class="bg-trans-dark">
+                            <th class="min-col text-center text-uppercase">Tên gế</th>
+                            <th class="min-col text-center text-uppercase">Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var seat in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td class="text-center">@seat.SeatName</td>
+                                <td class="text-center">@seat.Price</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6 table-responsive">
+                <table class="table table-bordered invoice-summary">
+                    <thead>
+                        <tr class="bg-trans-dark">
+                            <th class="min-col text-center text-uppercase">Tên Topping</th>
+                            <th class="min-col text-center text-uppercase">Giá</th>
+                            <th class="min-col text-center text-uppercase">Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ToppingOrderDetails)
+                        {
+                            <tr>
+                                <td class="text-center">@item.ToppingName</td>
+                                <td class="text-center">@item.Price X @item.Quantity</td>
+                                <td class="text-center">@item.Total</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="clearfix">
+            <table class="table invoice-total">
+                <tbody>
+                    <tr>
+                        <td><strong>Phim :</strong></td>
+                        <td>@Model.TotalPriceFilm</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Topping :</strong></td>
+                        <td>@Model.TotalPriceTopping</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Promotion :</strong></td>
+                        <td>@Model.TotalPricePromotion </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tổng :</strong></td>
+                        <td class="text-bold h4">@Model.TotalPrice</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-right no-print">
+            <a href="javascript:window.print()" class="btn btn-default"><i class="demo-pli-printer icon-lg"></i></a>
+            <a href="#" class="btn btn-primary">Confirm Payment</a>
+        </div>
+
+        <hr class="new-section-sm bord-no">
+
+        <div class="well well-sm">
+            <p class="text-bold text-main text-uppercase">Notes &amp; Information</p>
+            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
+            <p>If you have any questions concerning this invoice, please contact <strong class="text-main">billing[at]mycompany.com</strong></p>
+        </div>
+    </div>
+</div>

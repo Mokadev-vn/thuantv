@@ -1,0 +1,537 @@
+﻿@using BELibrary.Constant
+@using BELibrary.Entity
+@using BELibrary.Extendsions
+@using BELibrary.Utils
+@model List<Promotion>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-6 table-toolbar-left">
+                    <button data-target="#creation-modal" data-toggle="modal" id="demo-btn-addrow" class="btn btn-success" onclick="handleBeforeOpenDialog('#creation-form')"><i class="demo-pli-add"></i> Thêm</button>
+                </div>
+                <div class="col-sm-6 table-toolbar-right">
+                    <div class="form-group">
+                        <input id="demo-input-search2" type="text" placeholder="Tìm kiếm" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Khuyến mãi</th>
+                        <th class="text-center">Loại khuyến mãi</th>
+                        <th class="text-center">Code</th>
+                        <th class="text-center">Giảm</th>
+                        <th class="text-center">Phim|Topping</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, index) => new { index = index + 1, value }))
+                    {
+                        <tr id="row_@item.value.Id">
+                            <td class="text-center"><a class="btn-link" href="#">@item.index</a></td>
+                            <td class="text-center">@item.value.GetTypeDisplay()</td>
+                            <td class="text-center">@item.value.KindOfPromotion</td>
+                            <td class="text-center">
+                                <img style="display: inline-block" src="https://barcode.tec-it.com/barcode.ashx?data=@item.value.Code&code=MobileQRCode&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&eclevel=L" />
+                                <p class="text-center">@item.value.Code</p>
+                            </td>
+                            <td class="text-center">@item.value.GetPriceValueDisplay()</td>
+                            <td class="text-center">@item.value.GetToppingOrFilmName()</td>
+                            <td class="text-center"><div class="label label-table label-@item.value.GetEnStatus()">@item.value.GetVnStatus()</div></td>
+                            <td class="text-center">@item.value.Quantity</td>
+                            <td class="text-center">
+                                <button class="btn btn-info btn-icon" onclick="openEditingModal('@item.value.Id')"><i class="demo-psi-pen-5 icon-lg"></i></button>
+                                <button class="btn btn-danger btn-icon" onclick="deleteElement('@item.value.Id','@item.value.GetTypeDisplay()')"><i class="demo-psi-recycling icon-lg"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--Create-->
+<div class="modal fade" id="creation-modal" role="dialog" tabindex="-1" aria-labelledby="create" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="creation-form" class="form-horizontal" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Thêm mới @ViewBag.Element</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="isEdit" value="false" />
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Khuyến mãi</label>
+                            <div class="radio">
+                                @{
+                                    foreach (var item in KindOfPromotion.TypeList)
+                                    {
+                                        <input id="demo-radio-@item.Value" class="magic-radio" type="radio" name="IsFilm" onclick="chooseKindOfPromotion(@item.Value,'#creation-form')" value="@item.Value" @item.Checked>
+                                        <label for="demo-radio-@item.Value">@item.Name</label>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" for="kind-promotion">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Loại khuyến mãi</label>
+                            <select class="selectpicker form-control" name="KindOfPromotion" onchange="selectKindOfPromotion('#creation-form')">
+                                @{
+                                    foreach (var item in KindOfPromotion.UsingFilm)
+                                    {
+                                        <option value="@item.Name|@item.Value" for="film">@item.Name</option>
+                                    }
+                                    foreach (var item in KindOfPromotion.UsingTopping)
+                                    {
+                                        <option value="@item.Name|@item.Value" for="topping" style="display: none;">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" for="code-field">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Code</label>
+                            <input type="hidden" class="form-control" name="Code" placeholder="">
+                            <img style="margin-top:10px;display: block" src="https://barcode.tec-it.com/barcode.ashx?data=6688&code=MobileQRCode&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&eclevel=L" />
+                        </div>
+                    </div>
+                    <div class="form-group" for="price">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Giá</label>
+                            <input type="text" class="form-control" name="Price" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" for="film-list" style="display: none;">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Danh sách phim</label>
+                            <select class="selectpicker form-control" name="FilmId">
+                                @{
+                                    foreach (var item in ViewBag.Films)
+                                    {
+                                        <option value="@item.Id" for="film">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" for="topping-list" style="display: none;">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Danh sách topping</label>
+                            <select class="selectpicker form-control" name="ToppingId">
+                                @{
+                                    foreach (var item in ViewBag.Toppings)
+                                    {
+                                        <option value="@item.Id" for="topping">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Số lượng</label>
+                            <input type="text" class="form-control" name="Quantity" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Trạng thái</label>
+                            <div class="radio">
+                                <input id="demo-radio-active" class="magic-radio" type="radio" name="IsActive" value="true" checked>
+                                <label for="demo-radio-active">Hoạt động</label>
+                                <input id="demo-radio-reject" class="magic-radio" type="radio" name="IsActive" value="false">
+                                <label for="demo-radio-reject">Tạm hủy</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Edit-->
+<div class="modal fade" id="editing-modal" role="dialog" tabindex="-1" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editing-form" class="form-horizontal" action="#" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Chỉnh sửa @ViewBag.Element</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="isEdit" value="true" />
+                    <input type="hidden" name="Id" value="" />
+                    <input type="hidden" name="CreationTime" value="" />
+                    <input type="hidden" name="CreaterId" value="" />
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Khuyến mãi</label>
+                            <div class="radio">
+                                @{
+                                    foreach (var item in KindOfPromotion.TypeList)
+                                    {
+                                        <input id="edit-radio-@item.Value" class="magic-radio" type="radio" name="IsFilm" onclick="chooseKindOfPromotion(@item.Value,'#editing-form')" value="@item.Value" @item.Checked>
+                                        <label for="edit-radio-@item.Value">@item.Name</label>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" for="kind-promotion">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Loại khuyến mãi</label>
+                            <select class="selectpicker form-control" name="KindOfPromotion" onchange="selectKindOfPromotion('#editing-form')">
+                                @{
+                                    foreach (var item in KindOfPromotion.UsingFilm)
+                                    {
+                                        <option value="@item.Name|@item.Value" for="film">@item.Name</option>
+                                    }
+                                    foreach (var item in KindOfPromotion.UsingTopping)
+                                    {
+                                        <option value="@item.Name|@item.Value" for="topping">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" for="code-field">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Code</label>
+                            <input type="hidden" class="form-control" name="Code" placeholder="">
+                            <img style="margin-top:10px;display: block" src="https://barcode.tec-it.com/barcode.ashx?data=6688&code=MobileQRCode&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&eclevel=L" />
+                        </div>
+                    </div>
+                    <div class="form-group" for="price">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Giá</label>
+                            <input type="text" class="form-control" name="Price" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" for="film-list" style="display: none;">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Danh sách phim</label>
+                            <select class="selectpicker form-control" name="FilmId">
+                                @{
+                                    foreach (var item in ViewBag.Films)
+                                    {
+                                        <option value="@item.Id" for="film">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" for="topping-list" style="display: none;">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Danh sách topping</label>
+                            <select class="selectpicker form-control" name="ToppingId">
+                                @{
+                                    foreach (var item in ViewBag.Toppings)
+                                    {
+                                        <option value="@item.Id" for="topping">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Số lượng</label>
+                            <input type="text" class="form-control" name="Quantity" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-7">
+                            <label class="control-label">Trạng thái</label>
+                            <div class="radio">
+                                <input id="edit-status-true" class="magic-radio" type="radio" name="IsActive" value="true" checked>
+                                <label for="edit-status-true">Hoạt động</label>
+                                <input id="edit-status-false" class="magic-radio" type="radio" name="IsActive" value="false">
+                                <label for="edit-status-false">Tạm hủy</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Script-->
+@section Scripts {
+    <script>
+        const baseUrl = "/admin/Promotion";
+        // Valid
+        const fields = {
+            Quantity: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Số lượng là cần thiết và không để trống!'
+                    }
+                }
+            },
+            Price: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Giá là cần thiết và không để trống!'
+                    }
+                }
+            }
+        }
+        validator.valid('editing-form',
+            fields,
+            (e) => {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("editing-form"));
+                var type = parseInt(formData.get('KindOfPromotion').split('|')[1]);
+                if (type !== 3 && type !== 0) {
+                    formData.set('PromotionPercent', formData.get('Price'));
+                    formData.delete('Price');
+                }
+                if (type !== 1 && type !== 4) {
+                    formData.delete('FilmId');
+                    formData.delete('ToppingId');
+                } else if (type === 1) {
+                    formData.delete('ToppingId');
+                } else if (type === 4) {
+                    formData.delete('FilmId');
+                }
+                ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`,
+                    formData,
+                    (response) => {
+                        if (response.status) {
+                            notify.push(response.mess, notify.EType.SUCCESS);
+                            notify.loading();
+
+                            $('#editing-modal').modal('hide');
+                            setTimeout(function () {
+                                window.location.href = window.location.pathname;
+                            },
+                                3000);
+                        } else {
+                            notify.push(response.mess, notify.EType.DANGER);
+                        }
+                    },
+                    (jqXHR, textStatus) => {
+                        let mess = "Request failed: " + textStatus;
+                        notify.push(mess, notify.EType.DANGER);
+
+                    }
+                );
+
+            });
+        validator.valid('creation-form',
+            fields,
+            (e) => {
+                e.preventDefault();
+
+                var formData = new FormData(document.getElementById('creation-form'));
+                var type = parseInt(formData.get('KindOfPromotion').split('|')[1]);
+                if (type !== 3 && type !== 0) {
+                    formData.set('PromotionPercent', formData.get('Price'));
+                    formData.delete('Price');
+                }
+                if (type !== 1 && type !== 4) {
+                    formData.delete('FilmId');
+                    formData.delete('ToppingId');
+                } else if (type === 1) {
+                    formData.delete('ToppingId');
+                } else if (type === 4) {
+                    formData.delete('FilmId');
+                }
+                ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`,
+                    formData,
+                    (response) => {
+                        if (response.status) {
+                            notify.push(response.mess, notify.EType.SUCCESS);
+                            notify.loading();
+                            $('#editing-modal').modal('hide');
+                            setTimeout(function () {
+                                window.location.href = window.location.pathname;
+                            },
+                                3000);
+
+                        } else {
+                            notify.push(response.mess, notify.EType.DANGER);
+                        }
+                    },
+                    (jqXHR, textStatus) => {
+                        let mess = "Request failed: " + textStatus;
+                        notify.push(mess, notify.EType.DANGER);
+                    }
+                );
+            });
+
+        //Edit
+        function openEditingModal(_id) {
+            ajax.get(`${baseUrl}/GetJson`,
+                { id: _id },
+                (response) => {
+                    if (response.status) {
+                        var obj = response.data;
+                        $('#editing-form input[name="Id"]').val(obj.Id);
+                        $('#editing-form label[for="edit-radio-' + obj.IsFilm + '"]').click();
+                        $('#editing-form label[for="edit-status-' + obj.IsActive + '"]').click();
+                        $('#editing-form option[name="IsActive"]').val(obj.IsActive);
+                        $('#editing-form select[name="KindOfPromotion"]').val(obj.KindOfPromotion);
+                        $('#editing-form select[name="FilmId"]').val(obj.FilmId);
+                        $('#editing-form select[name="ToppingId"]').val(obj.ToppingId);
+                        $('#editing-form input[name="Code"]').val(obj.Code);
+                        $('#editing-form div[for="code-field"] label').html('Code: ' + obj.Code);
+                        $('#editing-form div[for="code-field"] img').attr("src", qrCodeSrc.replace('{code}', obj.Code));
+                        $('#editing-form input[name="Price"]').val(obj.Price);
+                        if (obj.PromotionPercent !== 0) {
+                            $('#editing-form input[name="Price"]').val(obj.PromotionPercent);
+                        }
+                        $('#editing-form input[name="Quantity"]').val(obj.Quantity);
+                        $('#editing-form input[name="CreationTime"]').val(obj.CreationTime);
+                        $('#editing-form input[name="CreaterId"]').val(obj.CreaterId);
+                        chooseKindOfPromotion(obj.IsFilm, '#editing-form');
+                        $('#editing-modal').modal('show');
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    let mess = "Request failed: " + textStatus;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+        }
+
+        //Del
+        function deleteElement(id, name) {
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess,
+                function (result) {
+                    if (result) {
+                        ajax.del(`${baseUrl}/del`,
+                            { id: id },
+                            (response) => {
+                                if (response.status) {
+                                    notify.push(response.mess, notify.EType.SUCCESS);
+                                    $(`#row_${id}`).remove();
+                                } else {
+                                    notify.push(mess, notify.EType.DANGER);
+                                }
+                            },
+                            (jqXHR, textStatus) => {
+                                const mess = "Request failed: " + textStatus;
+                                notify.push(mess, notify.EType.DANGER);
+
+                            }
+                        )
+                    }
+                });
+        }
+    </script>
+    <script>
+        function chooseKindOfPromotion(isFilm, formId) {
+            if (isFilm) {
+                selectKindOfPromotion(formId);
+                $(`${formId} option[for="film"]`).css('display', 'block');
+                $(`${formId} option[for="topping"]`).css('display', 'none');
+            } else {
+                selectKindOfPromotion(formId);
+                $(`${formId} option[for="topping"]`).css('display', 'block');
+                $(`${formId} option[for="film"]`).css('display', 'none');
+            }
+        }
+
+        function selectKindOfPromotion(formId) {
+            const type = parseInt($(`${formId} div[for="kind-promotion"] select`).val().split('|')[1]);
+            if (type === 0 || type === 3) {
+                $(`${formId} div[for="price"] label`).html('Giá');
+            } else {
+                $(`${formId} div[for="price"] label`).html('Phần trăm khuyến mãi');
+            }
+            if (type === 1) {
+                $(`${formId} div[for="film-list"]`).css('display', 'block');
+                $(`${formId} div[for="topping-list"]`).css('display', 'none');
+            }
+            else if (type === 4) {
+                $(`${formId} div[for="topping-list"]`).css('display', 'block');
+                $(`${formId} div[for="film-list"]`).css('display', 'none');
+            } else {
+                $(`${formId} div[for="film-list"]`).css('display', 'none');
+                $(`${formId} div[for="topping-list"]`).css('display', 'none');
+            }
+        }
+
+        function handleBeforeOpenDialog(formId) {
+            ajax.get(`${baseUrl}/GetCode`,
+                null,
+                (response) => {
+                    if (response.status) {
+                        const obj = response.data;
+
+                        $(formId + ' input[name="Code"]').val(obj);
+                        $(formId + ' div[for="code-field"] label').html(`Code: ${obj}`);
+                        $(formId + ' div[for="code-field"] img').attr("src", qrCodeSrc.replace('{code}', obj));
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = "Request failed: " + textStatus;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+        }
+    </script>
+}

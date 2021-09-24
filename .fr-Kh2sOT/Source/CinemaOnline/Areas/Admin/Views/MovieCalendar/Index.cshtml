@@ -1,0 +1,183 @@
+﻿@using CinemaOnline.Areas.Admin.Models;
+@using PagedList.Mvc
+@model PagedList.IPagedList<MovieCalendarDtoView>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+}
+
+@section CSS{
+    <!--DataTables [ OPTIONAL ]-->
+    <link href="/Areas/Admin/Content/plugins/datatables/media/css/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="/Areas/Admin/Content/plugins/datatables/extensions/Responsive/css/responsive.dataTables.min.css" rel="stylesheet">
+    <style>
+        .schedule-movie {
+            margin-bottom: 10px;
+        }
+
+        .movie-type {
+            padding-top: 5px;
+            border: ridge;
+            margin-bottom: 10px;
+            min-height: 80px;
+            height: 100%;
+            overflow-y: hidden;
+        }
+
+        .pd-t-10 {
+            padding-top: 10px;
+        }
+
+        .time-movie {
+            margin: 3px;
+            font-size: 14px !important;
+        }
+    </style>
+
+}
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-3 table-toolbar-left">
+                    <a class="btn btn-success" href="~/Admin/MovieCalendar/Create">
+                        <i class="demo-pli-add"></i> Thêm
+                    </a>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label">Phòng</label>
+                        @Html.DropDownList("CinemaRoomId", (SelectList)ViewBag.CinemaRooms,
+                               new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-sm-3 table-toolbar-left"></div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped" id="tblData">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Tên phim</th>
+                        <th class="text-center">Lịch chiếu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, i) => new { i, value }))
+                    {
+                        <tr id="row_@item.i">
+                            <td class="text-center">@(item.i + 1)</td>
+                            <td class="text-center">@item.value.FilmName</td>
+                            <td class="text-center">@item.value.StartWeek.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                @foreach (var day in item.value.DayOfWeeks)
+                                {
+                                    <div class="schedule-movie">
+                                        <div class="col-md-2 pd-t-10">
+                                            @day.Day
+                                        </div>
+                                        <div class="col-md-10">
+                                            @foreach (var type in day.Type)
+                                            {
+                                                <div class="movie-type">
+                                                    <div class="col-md-2 pd-t-10">
+                                                        @type.Type
+                                                    </div>
+                                                    <div class="col-md-8 pd-t-10">
+                                                        @foreach (var time in type.Time)
+                                                        {
+                                                            <span class="badge badge-info time-movie">@time</span>
+                                                        }
+                                                    </div>
+                                                    <div class="col-md-2 pd-t-10">
+                                                        <button class="btn btn-info btn-icon" onclick="openEditing('@type.IdObj.FilmId','@type.IdObj.DayOfWeekId','@type.IdObj.MovieDisplayTypeId','@type.IdObj.StartWeek.ToString("MM/dd/yyyy")')"><i class="demo-psi-pen-5 icon-lg"></i></button>
+                                                        <button class="btn btn-danger btn-icon" onclick="deleteElement('@item.i','@type.IdObj.FilmId','@type.IdObj.DayOfWeekId','@type.IdObj.MovieDisplayTypeId','@type.IdObj.StartWeek.ToString("MM/dd/yyyy")')"><i class="demo-psi-recycling icon-lg"></i></button>
+                                                    </div>
+                                                </div>
+
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <hr />
+            <div class="row">
+                <!-- Pagination -->
+                <div class="Page navigation text-center">
+                    @Html.PagedListPager(Model, page => "/" + "admin/movieCalendar" + "?page=" + page)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!--DataTables [ OPTIONAL ]-->
+    <script src="/Areas/Admin/Content/plugins/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="/Areas/Admin/Content/plugins/datatables/media/js/dataTables.bootstrap.js"></script>
+    <script src="/Areas/Admin/Content/plugins/datatables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+
+    <script>
+
+        const baseUrl = "/admin/MovieCalendar";
+        $(document).ready(function () {
+            $("#CinemaRoomId").val('@ViewBag.RoomId');
+            $("#CinemaRoomId").change(function () {
+                var roomId = $(this).val();
+                notify.loading();
+                window.location.href = baseUrl + "?roomId=" + roomId;
+            });
+        });
+
+        //Edit
+        function openEditing(_filmId, _dayOfWeekId, _movieDisplayTypeId, _startWeek) {
+            var _lCinemaRoomId = $("#CinemaRoomId").val();
+            window.location.href = `${baseUrl}/update?lfilmId=${_filmId}&ldayOfWeekId=${_dayOfWeekId}&lmovieDisplayTypeId=${_movieDisplayTypeId}&lstartWeek=${_startWeek}&lcinemaRoomId=${_lCinemaRoomId}`;
+        }
+
+        //Del
+        function deleteElement(_i, _filmId, _dayOfWeekId, _movieDisplayTypeId, _startWeek) {
+             _lCinemaRoomId = $("#CinemaRoomId").val();
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess, function (result) {
+                if (result) {
+                    ajax.del(`${baseUrl}/del`,
+                        {
+                            lfilmId: _filmId,
+                            ldayOfWeekId: _dayOfWeekId,
+                            lmovieDisplayTypeId: _movieDisplayTypeId,
+                            lstartWeek: _startWeek,
+                            lCinemaRoomId: _lCinemaRoomId
+                        },
+                        (response) => {
+                            if (response.status) {
+                                notify.push(response.mess, notify.EType.SUCCESS);
+                                notify.loading();
+                                setTimeout(function() {
+                                        window.location.href = baseUrl;
+                                    },
+                                    1000);
+                            } else {
+                                notify.push(mess, notify.EType.DANGER);
+                            }
+                        },
+                        (jqXHR, textStatus) => {
+                            const mess = `Request failed: ${textStatus}`;
+                            notify.push(mess, notify.EType.DANGER);
+
+                        }
+                    );
+                }
+            });
+        }
+    </script>
+}

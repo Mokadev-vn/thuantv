@@ -1,0 +1,98 @@
+﻿@using BELibrary.Constant
+@using BELibrary.Entity
+@using BELibrary.Extendsions
+@using BELibrary.Utils
+@model List<CinemaRoom>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-6 table-toolbar-left">
+                    <a class="btn btn-success" href="/Admin/CinemaRoom/Create">
+                        <i class="demo-pli-add"></i> Thêm
+                    </a>
+                </div>
+                <div class="col-sm-6 table-toolbar-right">
+                    <div class="form-group">
+                        <input id="demo-input-search2" type="text" placeholder="Tìm kiếm" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Tên phòng</th>
+                        <th class="text-center">Khu vực</th>
+                        <th class="text-center">Số lượng ghế</th>
+                        <th class="text-center">Chất lượng âm thanh</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, i) => new { i, value }))
+                    {
+                        <tr id="row_@item.value.Id">
+                            <td class="text-center">@item.i</td>
+                            <td class="text-center">@item.value.Name</td>
+                            <td class="text-center">@item.value.Area</td>
+                            <td class="text-center">@item.value.SeatQuantity</td>
+                            <td class="text-center">@item.value.SoundQuality</td>
+                            <td class="text-center"><div class="label label-table label-@item.value.GetStatusForClass()">@item.value.GetStatusStr()</div></td>
+                            <td class="text-center">
+                                <button class="btn btn-info btn-icon" onclick="redirectToEditPage('@item.value.Id')"><i class="demo-psi-pen-5 icon-lg"></i></button>
+                                <button class="btn btn-danger btn-icon" onclick="deleteElement('@item.value.Id','@item.value.Name')"><i class="demo-psi-recycling icon-lg"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        const baseUrl = "/admin/CinemaRoom";
+
+        //Redirect
+        function redirectToEditPage(_id) {
+            window.location.href = `${window.location.origin}${baseUrl}/Update?id=${_id}`;
+        }
+
+        //Del
+        function deleteElement(_id, name) {
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess,
+                function (result) {
+                    if (result) {
+                        ajax.del(`${baseUrl}/del`,
+                            { id: _id },
+                            (response) => {
+                                if (response.status) {
+                                    notify.push(response.mess, notify.EType.SUCCESS);
+                                    $("#row_" + _id).remove();
+                                } else {
+                                    notify.push(mess, notify.EType.DANGER);
+                                }
+                            },
+                            (jqXHR, textStatus) => {
+                                let mess = "Request failed: " + textStatus;
+                                notify.push(mess, notify.EType.DANGER);
+
+                            }
+                        )
+                    }
+                });
+        }
+    </script>
+}

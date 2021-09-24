@@ -1,0 +1,168 @@
+﻿@using BELibrary.Entity
+@using BELibrary.Utils
+@model List<Film>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+}
+
+@section CSS{
+    <!--DataTables [ OPTIONAL ]-->
+    <link href="/Areas/Admin/Content/plugins/datatables/media/css/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="/Areas/Admin/Content/plugins/datatables/extensions/Responsive/css/responsive.dataTables.min.css" rel="stylesheet">
+}
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-6 table-toolbar-left">
+                    <a class="btn btn-success" href="/Admin/Film/Create">
+                        <i class="demo-pli-add"></i> Thêm
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped" id="tblData">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Tên phim</th>
+                        <th class="text-center">Đạo diễn</th>
+                        <th class="text-center">Giá</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, i) => new { i, value }))
+                    {
+                        <tr id="row_@item.value.Id">
+                            <td class="text-center">@(item.i + 1)</td>
+                            <td class="text-center">@item.value.Name</td>
+                            <td class="text-center">@item.value.Directors</td>
+                            <td class="text-center">@item.value.Price.ToString("##,###") đ</td>
+                            <td class="text-center">
+                                <button class="btn btn-info btn-icon" onclick="openEditing('@item.value.Id')"><i class="demo-psi-pen-5 icon-lg"></i></button>
+                                <button class="btn btn-danger btn-icon" onclick="deleteElement('@item.value.Id','@item.value.Name')"><i class="demo-psi-recycling icon-lg"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!--DataTables [ OPTIONAL ]-->
+    <script src="/Areas/Admin/Content/plugins/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="/Areas/Admin/Content/plugins/datatables/media/js/dataTables.bootstrap.js"></script>
+    <script src="/Areas/Admin/Content/plugins/datatables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#tblData').dataTable({
+                "responsive": true,
+                "language": {
+                    "paginate": {
+                        "previous": '<i class="demo-psi-arrow-left"></i>',
+                        "next": '<i class="demo-psi-arrow-right"></i>'
+                    }
+                }
+            });
+        });
+        const baseUrl = "/admin/Film";
+        // Valid
+        const fields = {
+            Name: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'Tên là cần thiết và không để trống!'
+                    }
+                }
+            }
+        }
+        validator.valid('editing-form', fields, (e) => {
+            e.preventDefault();
+            var formData = new FormData(document.getElementById("editing-form"));
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+
+        });
+        validator.valid('creation-form', fields, (e) => {
+            e.preventDefault();
+
+            var formData = new FormData(document.getElementById('creation-form'));
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+                }
+            );
+        });
+
+        //Edit
+        function openEditing(id) {
+            window.location.href = `${baseUrl}/update?id=${id}`;
+        }
+
+        //Del
+        function deleteElement(_id, name) {
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess, function (result) {
+                if (result) {
+                    ajax.del(`${baseUrl}/del`, { id: _id },
+                        (response) => {
+                            if (response.status) {
+                                notify.push(response.mess, notify.EType.SUCCESS);
+                                $(`#row_${_id}`).remove();
+                            } else {
+                                notify.push(mess, notify.EType.DANGER);
+                            }
+                        },
+                        (jqXHR, textStatus) => {
+                            const mess = `Request failed: ${textStatus}`;
+                            notify.push(mess, notify.EType.DANGER);
+
+                        }
+                    )
+                }
+            });
+        }
+    </script>
+}

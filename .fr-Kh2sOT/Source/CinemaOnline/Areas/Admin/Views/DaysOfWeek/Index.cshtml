@@ -1,0 +1,216 @@
+﻿@using BELibrary.Entity
+@model List<DaysOfWeek>
+@{
+    ViewBag.Title = ViewBag.Feature + " " + ViewBag.Element;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!--List-->
+<div class="panel">
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Thứ</th>
+                        <th class="text-center">Giá cộng thêm</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Select((value, index) => new { index = (index + 1), value }))
+                    {
+                        <tr id="row_@item.value.Id">
+                            <td class="text-center"><a class="btn-link" href="#">@item.index</a></td>
+                            <td class="text-center">@item.value.Name</td>
+                            <td class="text-center">@(string.Format("{0:0,0}", item.value.Price)) đ</td>
+                            <td class="text-center">
+                                <button class="btn btn-info btn-icon" onclick="openEditingModal('@item.value.Id')"><i class="demo-psi-pen-5 icon-lg"></i></button>                                
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--Edit-->
+<div class="modal fade" id="editing-modal" role="dialog" tabindex="-1" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editing-form" class="form-horizontal" action="#" method="post">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Chỉnh sửa @ViewBag.Element</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                    <input type="hidden" name="isEdit" value="true" />
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Thứ</label>
+                        <div class="col-lg-7">
+                            <input type="text" class="form-control" name="DisplayName" id="txtDisplayNameEdit" placeholder="" disabled required>
+                            <input type="hidden" class="form-control" name="Name" id="txtNameEdit" placeholder="" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Giá</label>
+                        <div class="col-lg-7">
+                            <input type="number" class="form-control" name="Price" placeholder="" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Đóng</button>
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Script-->
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+
+            //$('#txtTimeEdit').mask('99:99:99', {
+            //    completed: function () {
+            //        $('[name="Time"]').parents('.form-group').addClass("has-success")
+            //    }
+            //});
+
+            //$('#txtTimeAdd').mask('99:99:99', {
+            //    completed: function () {
+            //        $('[name="Time"]').parents('.form-group').addClass("has-success")
+            //    }
+            //});
+
+        });
+
+        const baseUrl = "/admin/DaysOfWeek";
+        // Valid
+        const fields = {
+            Time: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'The Time is required and cannot be empty'
+                    }
+                }
+            },
+            Price: {
+                container: 'tooltip',
+                validators: {
+                    notEmpty: {
+                        message: 'The Price is required and cannot be empty'
+                    }
+                }
+            }
+        }
+        validator.valid('editing-form', fields, (e) => {
+            e.preventDefault();
+            var formData = new FormData(document.getElementById("editing-form"));
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+
+        });
+        validator.valid('creation-form', fields, (e) => {
+            e.preventDefault();
+
+            var formData = new FormData(document.getElementById('creation-form'));
+            ajax.createOrUpdate(`${baseUrl}/CreateOrEdit`, formData,
+                (response) => {
+                    if (response.status) {
+                        notify.push(response.mess, notify.EType.SUCCESS);
+                        notify.loading();
+                        $('#editing-modal').modal('hide');
+                        setTimeout(function () {
+                            window.location.href = window.location.pathname;
+                        }, 3000);
+
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+                }
+            );
+        });
+
+        //Edit
+        function openEditingModal(id) {
+            ajax.get(`${baseUrl}/GetJson`, { id: id },
+                (response) => {
+                    if (response.status) {
+                        const obj = response.data;
+                        console.log(obj);
+                        $('#editing-form input[name="Name"]').val(obj.Name);
+                        $('#editing-form input[name="DisplayName"]').val(obj.Name);
+                        $('#editing-form input[name="Price"]').val(obj.Price);
+                        $('#editing-form input[name="Id"]').val(obj.Id);
+                        $('#editing-modal').modal('show');
+                    } else {
+                        notify.push(response.mess, notify.EType.DANGER);
+                    }
+                },
+                (jqXHR, textStatus) => {
+                    const mess = `Request failed: ${textStatus}`;
+                    notify.push(mess, notify.EType.DANGER);
+
+                }
+            );
+        }
+
+        //Del
+        function deleteElement(_id, name) {
+            var mess = 'Xác nhận <b>xóa</b> bản ghi <b>' + name + '</b>';
+            bootbox.confirm(mess, function (result) {
+                if (result) {
+                    ajax.del(`${baseUrl}/del`,
+                        { id: _id },
+                        (response) => {
+                            if (response.status) {
+                                notify.push(response.mess, notify.EType.SUCCESS);
+                                $(`#row_${_id}`).remove();
+                            } else {
+                                notify.push(mess, notify.EType.DANGER);
+                            }
+                        },
+                        (jqXHR, textStatus) => {
+                            const mess = `Request failed: ${textStatus}`;
+                            notify.push(mess, notify.EType.DANGER);
+
+                        }
+                    );
+                }
+            });
+        }
+    </script>
+}
