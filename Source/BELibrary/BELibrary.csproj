@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{98A12BEB-3EA8-448A-BE64-F67242449103}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BELibrary</RootNamespace>
+    <AssemblyName>BELibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=8.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.8.0.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Extensions.Microsoft.DependencyInjection, Version=0.0.0.0, Culture=neutral, PublicKeyToken=e767ac9c89543656, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.Extensions.Microsoft.DependencyInjection.6.0.0\lib\netstandard2.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Z.EntityFramework.Extensions, Version=4.0.57.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Z.EntityFramework.Extensions.4.0.57\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Z.EntityFramework.Plus.EF6, Version=1.12.17.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Z.EntityFramework.Plus.EF6.1.12.17\lib\net45\Z.EntityFramework.Plus.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="Z.Expressions.Eval, Version=3.1.8.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Z.Expressions.Eval.3.1.8\lib\net45\Z.Expressions.Eval.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Constant\KindOfPromotion.cs" />
+    <Compile Include="Constant\SoundQuality.cs" />
+    <Compile Include="Core.Entity\IUnitOfWork.cs" />
+    <Compile Include="Core.Entity\Repositories\IAdminRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IBannerRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\ICinemaRoomRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\ICommentRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IDaysOfWeekRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IFilmMovieDisplayTypeRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IFilmMovieTypeRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IFilmRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IGalleryRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IMovieCalendarRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IMovieDisplayTypeRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IMovieTypeRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\INewsRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IOrderDetailRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IOrderRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IPromotionRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IRoleRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\ISeatRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\ISeatTypeRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\ITimeFrameRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IToppingOrderDetailRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IToppingRepository.cs" />
+    <Compile Include="Core.Entity\Repositories\IUserRepository.cs" />
+    <Compile Include="Core.Entity\UnitOfWork.cs" />
+    <Compile Include="Core.Utils\MailUtils.cs" />
+    <Compile Include="Core.Utils\CodeUtils.cs" />
+    <Compile Include="Core.Utils\CryptorEngine.cs" />
+    <Compile Include="Core.Utils\StringHelper.cs" />
+    <Compile Include="Core.Utils\VariableExtensions.cs" />
+    <Compile Include="DbContext\CinemaOnlineDbContext.cs" />
+    <Compile Include="Entity\Admin.cs" />
+    <Compile Include="Entity\Banner.cs" />
+    <Compile Include="Entity\CinemaRoom.cs" />
+    <Compile Include="Entity\Comment.cs" />
+    <Compile Include="Entity\DaysOfWeek.cs" />
+    <Compile Include="Entity\Film.cs" />
+    <Compile Include="Entity\FilmMovieDisplayType.cs" />
+    <Compile Include="Entity\FilmMovieType.cs" />
+    <Compile Include="Entity\Gallery.cs" />
+    <Compile Include="Entity\MovieCalendar.cs" />
+    <Compile Include="Entity\MovieDisplayType.cs" />
+    <Compile Include="Entity\MovieType.cs" />
+    <Compile Include="Entity\News.cs" />
+    <Compile Include="Entity\Order.cs" />
+    <Compile Include="Entity\OrderDetail.cs" />
+    <Compile Include="Entity\Promotion.cs" />
+    <Compile Include="Entity\Role.cs" />
+    <Compile Include="Entity\Seat.cs" />
+    <Compile Include="Entity\SeatType.cs" />
+    <Compile Include="Entity\TimeFrame.cs" />
+    <Compile Include="Entity\Topping.cs" />
+    <Compile Include="Entity\ToppingOrderDetail.cs" />
+    <Compile Include="Entity\User.cs" />
+    <Compile Include="Constant\KindOfTopping.cs" />
+    <Compile Include="Enums\BookingStatusesEnum.cs" />
+    <Compile Include="Enums\StatisticStatusesEnum.cs" />
+    <Compile Include="Errors\ErrorCodes.cs" />
+    <Compile Include="Extendsions\Entity.cs" />
+    <Compile Include="Extendsions\EnumableEx.cs" />
+    <Compile Include="Extendsions\Model.cs" />
+    <Compile Include="Mapping\MappingProfile.cs" />
+    <Compile Include="Migrations\202005091001162_Init_Database.cs" />
+    <Compile Include="Migrations\202005091001162_Init_Database.designer.cs">
+      <DependentUpon>202005091001162_Init_Database.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\CinemaRoomDto.cs" />
+    <Compile Include="Models\ItemModel.cs" />
+    <Compile Include="Models\MovieCalendarDto.cs" />
+    <Compile Include="Models\MovieDisplayTypeDto.cs" />
+    <Compile Include="Models\MovieTypeDto.cs" />
+    <Compile Include="Models\NewsDto.cs" />
+    <Compile Include="Models\PromotionDto.cs" />
+    <Compile Include="Models\StatisticDto.cs" />
+    <Compile Include="Models\ToppingDto.cs" />
+    <Compile Include="Models\View\FilmView.cs" />
+    <Compile Include="Models\View\PomotionView.cs" />
+    <Compile Include="Models\View\ReserveSeatView.cs" />
+    <Compile Include="Persistence\Repositories\AdminRepository.cs" />
+    <Compile Include="Persistence\Repositories\BannerRepository.cs" />
+    <Compile Include="Persistence\Repositories\CinemaRoomRepository.cs" />
+    <Compile Include="Persistence\Repositories\CommentRepository.cs" />
+    <Compile Include="Persistence\Repositories\DaysOfWeekRepository.cs" />
+    <Compile Include="Persistence\Repositories\FilmMovieDisplayTypeRepository.cs" />
+    <Compile Include="Persistence\Repositories\FilmMovieTypeRepository.cs" />
+    <Compile Include="Persistence\Repositories\FilmRepository.cs" />
+    <Compile Include="Persistence\Repositories\GalleryRepository.cs" />
+    <Compile Include="Persistence\Repositories\MovieCalendarRepository.cs" />
+    <Compile Include="Persistence\Repositories\MovieDisplayTypeRepository.cs" />
+    <Compile Include="Persistence\Repositories\MovieTypeRepository.cs" />
+    <Compile Include="Persistence\Repositories\NewsRepository.cs" />
+    <Compile Include="Persistence\Repositories\OrderDetailRepository.cs" />
+    <Compile Include="Persistence\Repositories\OrderRepository.cs" />
+    <Compile Include="Persistence\Repositories\PromotionRepository.cs" />
+    <Compile Include="Persistence\Repositories\Repository.cs" />
+    <Compile Include="Persistence\Repositories\RoleRepository.cs" />
+    <Compile Include="Persistence\Repositories\SeatRepository.cs" />
+    <Compile Include="Persistence\Repositories\SeatTypeRepository.cs" />
+    <Compile Include="Persistence\Repositories\TimeFrameRepository.cs" />
+    <Compile Include="Persistence\Repositories\ToppingOrderDetailRepository.cs" />
+    <Compile Include="Persistence\Repositories\ToppingRepository.cs" />
+    <Compile Include="Persistence\Repositories\UserRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202005091001162_Init_Database.resx">
+      <DependentUpon>202005091001162_Init_Database.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" />
+</Project>
